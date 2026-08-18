@@ -1,0 +1,328 @@
+.eligibility-page-container {
+    min-height: 100vh;
+    background-color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-family: sans-serif;
+    color: #1e293b;
+}
+
+.eligibility-card {
+    background-color: white;
+    border: 1px solid #f1f5f9;
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 42rem;
+    box-shadow: 0 20px 25px -5px rgba(226, 232, 240, 0.5);
+}
+
+.progress-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.progress-text {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #10b981;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.progress-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.input-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #334155;
+    margin-left: 0.25rem;
+}
+
+.form-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-prefix {
+    position: absolute;
+    left: 1rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.form-input-numeric {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.25rem;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    color: #1e293b;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.form-input-standard {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    color: #1e293b;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.form-input-numeric:focus,
+.form-input-standard:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    background-color: white;
+}
+
+/* Range Slider Styles */
+.range-slider-group {
+    margin-bottom: 2rem;
+}
+
+.range-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.range-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+.range-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.range-input {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    outline: none;
+}
+
+.range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #10b981;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 3px solid white;
+}
+
+.range-input::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #10b981;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 3px solid white;
+}
+
+.range-min-max {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.5rem;
+}
+
+/* EMI Result Cards */
+.emi-result-container {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.emi-primary-result {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px dashed #cbd5e1;
+}
+
+.emi-primary-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.emi-primary-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.emi-secondary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.emi-stat-box {
+    text-align: center;
+}
+
+.emi-stat-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.emi-stat-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+/* Custom Alert Messages */
+.status-msg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.status-success {
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+}
+
+.status-success svg {
+    color: #10b981;
+}
+
+.status-success h3 {
+    color: #065f46;
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.status-rejected {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+}
+
+.status-rejected svg {
+    color: #ef4444;
+}
+
+.status-rejected h3 {
+    color: #991b1b;
+    margin: 0;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.status-rejected p {
+    color: #7f1d1d;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+/* Action Buttons */
+.action-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(to right, #10b981, #059669);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.75rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+    margin-top: 1rem;
+}
+
+.action-btn:hover:not(:disabled) {
+    background: linear-gradient(to right, #34d399, #10b981);
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+}
+
+.action-btn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.action-btn:disabled {
+    background: #cbd5e1;
+    box-shadow: none;
+    cursor: not-allowed;
+    color: #64748b;
+}
+
+.reset-btn {
+    background: transparent;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 1rem;
+}
+
+.reset-btn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}

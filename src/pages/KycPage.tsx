@@ -43,7 +43,7 @@ const KycPage = () => {
         e.preventDefault();
         if (isFormValid) {
             // Next step placeholder
-            navigate('/home');
+            navigate('/eligibility');
         }
     };
 
