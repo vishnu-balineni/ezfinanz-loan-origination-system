@@ -63,7 +63,16 @@ const AdminLayout = () => {
                     </div>
                 </div>
 
-                <div className="admin-sidebar-footer">
+                <div className="admin-sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <NavLink
+                        to="/admin/profile"
+                        className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
+                        style={{ justifyContent: 'center' }}
+                    >
+                        <ShieldCheck size={18} />
+                        Admin Profile
+                    </NavLink>
+
                     <button onClick={handleLogout} className="admin-logout-btn">
                         <LogOut size={18} />
                         Logout
