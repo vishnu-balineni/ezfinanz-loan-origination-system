@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Mail, Phone, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck, Fingerprint, Sparkles } from 'lucide-react';
 
 const AuthPage = () => {
+    const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(false);
     const [method, setMethod] = useState<'email' | 'phone'>('email');
 
@@ -195,7 +197,10 @@ const AuthPage = () => {
                     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
 
                         {method === 'email' && (
-                            <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                navigate('/home');
+                            }} className="space-y-4">
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-medium text-slate-700 ml-1">Email Address</label>
                                     <div className="relative group">
@@ -340,6 +345,7 @@ const AuthPage = () => {
 
                                             <button
                                                 type="button"
+                                                onClick={() => navigate('/home')}
                                                 disabled={otp.join('').length < 4}
                                                 className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                                             >
