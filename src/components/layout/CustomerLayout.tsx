@@ -5,7 +5,8 @@ import {
     FileText,
     LifeBuoy,
     LogOut,
-    Target
+    Target,
+    ShieldCheck
 } from 'lucide-react';
 import './CustomerLayout.css';
 
@@ -39,6 +40,14 @@ const CustomerLayout = () => {
                         >
                             <LayoutDashboard size={18} />
                             Dashboard
+                        </NavLink>
+
+                        <NavLink
+                            to="/dashboard/verify"
+                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                        >
+                            <ShieldCheck size={18} />
+                            Get Verified
                         </NavLink>
 
                         <NavLink

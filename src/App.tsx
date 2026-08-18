@@ -6,6 +6,7 @@ import AuthPage from './pages/AuthPage';
 // Portal Phase 10.5 Imports
 import CustomerLayout from './components/layout/CustomerLayout';
 import DashboardHome from './pages/portal/DashboardHome';
+import VerificationFlow from './pages/portal/VerificationFlow';
 import MyProfile from './pages/portal/MyProfile';
 import Documents from './pages/portal/Documents';
 
@@ -27,6 +28,7 @@ function App() {
                 {/* User Dashboard Application Routes */}
                 <Route path="/dashboard" element={<CustomerLayout />}>
                     <Route index element={<DashboardHome />} />
+                    <Route path="verify" element={<VerificationFlow />} />
                     <Route path="profile" element={<MyProfile />} />
                     <Route path="documents" element={<Documents />} />
                 </Route>
