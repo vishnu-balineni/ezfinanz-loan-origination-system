@@ -9,6 +9,8 @@ const ApplicationReview = () => {
     // Mock data fetched for ID (Phase 1-9 collection point)
     const mockData = {
         name: "Rahul Sharma",
+        phone: "+91 9876543210",
+        email: "rahul.sharma@example.com",
         dob: "15 Aug 1990",
         pan: "ABCDE1234F",
         aadhaar: "XXXX-XXXX-1234",
@@ -21,7 +23,17 @@ const ApplicationReview = () => {
         bank: "State Bank of India",
         acctUrl: "XXXX-XXXX-1234",
         pennyDrop: true,
-        mandate: "I hereby authorize EZFINANZ to deduct EMI obligations directly from my verified disbursement bank account."
+        mandate: "I hereby authorize EZFINANZ to deduct EMI obligations directly from my verified disbursement bank account.",
+        selfieStatus: "Pending Review"
+    };
+
+    const handleRejectSelfie = () => {
+        const reason = prompt("Enter reason for selfie rejection (Optionally):");
+        alert(`Selfie Rejected. Applicant will be asked to re-upload. Reason: ${reason || 'Not specified'}`);
+    };
+
+    const handleApproveSelfie = () => {
+        alert("Selfie verified successfully. Applicant identity confirmed.");
     };
 
     const handleReject = () => {
@@ -49,6 +61,14 @@ const ApplicationReview = () => {
                 {/* Column 1: Identity */}
                 <div className="review-card">
                     <h2><User2 size={18} style={{ display: 'inline', marginRight: '8px' }} />Identity Verification</h2>
+
+                    <div className="data-group">
+                        <label>Login / Verified Contacts</label>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            <div className="verified-tag"><CheckCircle2 size={12} /> {mockData.phone}</div>
+                            <div className="verified-tag"><CheckCircle2 size={12} /> {mockData.email}</div>
+                        </div>
+                    </div>
 
                     <div className="data-group">
                         <label>Full Legal Name</label>
@@ -116,9 +136,13 @@ const ApplicationReview = () => {
                     <h2><ShieldCheck size={18} style={{ display: 'inline', marginRight: '8px' }} />Visual & Consent</h2>
 
                     <div className="data-group">
-                        <label>Live Selfie Capture</label>
+                        <label>Live Selfie Capture ({mockData.selfieStatus})</label>
                         <div className="selfie-box">
                             <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=300&h=400" alt="Applicant Selfie" />
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                            <button onClick={handleApproveSelfie} style={{ flex: 1, background: '#16a34a', color: 'white', padding: '0.5rem', border: 'none', borderRadius: '0.25rem', fontWeight: 600, cursor: 'pointer' }}>Approve Photo</button>
+                            <button onClick={handleRejectSelfie} style={{ flex: 1, background: '#ef4444', color: 'white', padding: '0.5rem', border: 'none', borderRadius: '0.25rem', fontWeight: 600, cursor: 'pointer' }}>Reject Photo</button>
                         </div>
                     </div>
 

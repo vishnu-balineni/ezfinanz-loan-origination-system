@@ -144,6 +144,17 @@ const KycPage = () => {
 
                     </div>
 
+                    {/* Optional ID Upload */}
+                    <div className="form-group full-width">
+                        <label className="form-label" style={{ display: 'block', marginBottom: '0.5rem' }}>Upload Photocopy of ID Document (Optional)</label>
+                        <input
+                            type="file"
+                            accept="image/*,.pdf"
+                            style={{ padding: '0.75rem', border: '1px dashed #cbd5e1', borderRadius: '0.5rem', background: '#f8fafc', width: '100%', cursor: 'pointer' }}
+                        />
+                        <div className="input-hint" style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#64748b' }}>Formats: JPG, PNG, PDF. Max size: 5MB.</div>
+                    </div>
+
                     <button
                         type="submit"
                         className="continue-btn"
@@ -152,7 +163,6 @@ const KycPage = () => {
                         Save & Continue
                         <ArrowRight size={18} />
                     </button>
-
                 </form>
             </div>
         </div>

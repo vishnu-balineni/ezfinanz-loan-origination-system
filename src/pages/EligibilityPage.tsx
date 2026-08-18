@@ -24,6 +24,8 @@ const EligibilityPage = () => {
     const [income, setIncome] = useState<string>('');
     const [debts, setDebts] = useState<string>('');
     const [cibil, setCibil] = useState<string>('');
+    const [employerName, setEmployerName] = useState<string>('');
+    const [employerDesignation, setEmployerDesignation] = useState<string>('');
 
     // EMI Calculator States (View 2)
     const [loanAmount, setLoanAmount] = useState<number>(100000);
@@ -83,10 +85,24 @@ const EligibilityPage = () => {
         const totalRepayment = emi * N;
         const totalInterest = totalRepayment - P;
 
+        // Breakdown logic as per Phase 5 spec
+        const processingFeePercentage = 2; // 2% PF
+        const processingFee = Math.round((P * processingFeePercentage) / 100);
+        const gst = Math.round((processingFee * 18) / 100); // 18% GST on PF
+
+        const netDisbursement = P - processingFee - gst;
+
+        // Approximate IRR factoring in upfront deductions
+        const irrCalculation = (((emi * N) / netDisbursement - 1) / (N / 12)) * 100 * 1.1; // Simulated formula
+
         return {
             emi,
             totalInterest,
-            totalRepayment
+            totalRepayment,
+            processingFee,
+            gst,
+            netDisbursement,
+            irr: irrCalculation.toFixed(2)
         };
     }, [loanAmount, tenure]);
 
@@ -151,10 +167,37 @@ const EligibilityPage = () => {
                             />
                         </div>
 
+                        <div className="form-group" style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div>
+                                <label className="form-label" htmlFor="employerName">Employer Name</label>
+                                <input
+                                    id="employerName"
+                                    type="text"
+                                    className="form-input-standard"
+                                    placeholder="Company Name"
+                                    value={employerName}
+                                    onChange={(e) => setEmployerName(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="form-label" htmlFor="employerDesignation">Designation</label>
+                                <input
+                                    id="employerDesignation"
+                                    type="text"
+                                    className="form-input-standard"
+                                    placeholder="Your Role"
+                                    value={employerDesignation}
+                                    onChange={(e) => setEmployerDesignation(e.target.value)}
+                                    required
+                                />
+                            </div>
+                        </div>
+
                         <button
                             type="submit"
                             className="action-btn"
-                            disabled={!income || !debts || !cibil}
+                            disabled={!income || !debts || !cibil || !employerName || !employerDesignation}
                         >
                             Check Eligibility
                             <ArrowRight size={18} />
@@ -232,20 +275,33 @@ const EligibilityPage = () => {
                                 </div>
                             </div>
 
-                            {/* Real-time Result */}
                             <div className="emi-result-container">
                                 <div className="emi-primary-result">
                                     <div className="emi-primary-label">Your Monthly EMI</div>
                                     <div className="emi-primary-value">{formatCurrency(emiDetails.emi)}</div>
                                 </div>
-                                <div className="emi-secondary-grid">
+                                <div className="emi-secondary-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
                                     <div className="emi-stat-box">
                                         <div className="emi-stat-label">Total Interest (12% p.a)</div>
-                                        <div className="emi-stat-value">{formatCurrency(emiDetails.totalInterest)}</div>
+                                        <div className="emi-stat-value" style={{ color: '#dc2626' }}>{formatCurrency(emiDetails.totalInterest)}</div>
                                     </div>
                                     <div className="emi-stat-box">
-                                        <div className="emi-stat-label">Total Repayment</div>
+                                        <div className="emi-stat-label">Total Repayment Amount</div>
                                         <div className="emi-stat-value">{formatCurrency(emiDetails.totalRepayment)}</div>
+                                    </div>
+                                    <div className="emi-stat-box">
+                                        <div className="emi-stat-label">Processing Fee (incl. 18% GST)</div>
+                                        <div className="emi-stat-value" style={{ color: '#dc2626' }}>
+                                            {formatCurrency(emiDetails.processingFee + emiDetails.gst)}
+                                        </div>
+                                    </div>
+                                    <div className="emi-stat-box" style={{ background: '#dcfce7', borderColor: '#bbf7d0', gridColumn: 'span 2' }}>
+                                        <div className="emi-stat-label" style={{ color: '#166534' }}>Net Disbursement Amount</div>
+                                        <div className="emi-stat-value" style={{ color: '#166534' }}>{formatCurrency(emiDetails.netDisbursement)}</div>
+                                    </div>
+                                    <div className="emi-stat-box" style={{ background: '#f5f3ff', borderColor: '#ddd6fe' }}>
+                                        <div className="emi-stat-label" style={{ color: '#5b21b6' }}>Applicable IRR</div>
+                                        <div className="emi-stat-value" style={{ color: '#5b21b6' }}>{emiDetails.irr}%</div>
                                     </div>
                                 </div>
                             </div>
