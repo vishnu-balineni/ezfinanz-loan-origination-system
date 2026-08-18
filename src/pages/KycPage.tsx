@@ -5,7 +5,11 @@ import { Stepper } from '../components/Stepper';
 import TrustFooter from '../components/shared/TrustFooter';
 import './KycPage.css';
 
-const KycPage = () => {
+interface KycProps {
+    onComplete?: () => void;
+}
+
+const KycPage = ({ onComplete }: KycProps) => {
     const navigate = useNavigate();
 
     // Form States
@@ -44,8 +48,11 @@ const KycPage = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (isFormValid) {
-            // Next step placeholder
-            navigate('/eligibility');
+            if (onComplete) {
+                onComplete();
+            } else {
+                navigate('/eligibility');
+            }
         }
     };
 

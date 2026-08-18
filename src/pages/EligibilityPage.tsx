@@ -6,6 +6,10 @@ import './EligibilityPage.css';
 
 type ViewState = 'checking' | 'eligible' | 'rejected';
 
+interface EligibilityProps {
+    onComplete?: () => void;
+}
+
 const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-IN', {
         style: 'currency',
@@ -14,7 +18,7 @@ const formatCurrency = (value: number) => {
     }).format(value);
 };
 
-const EligibilityPage = () => {
+const EligibilityPage = ({ onComplete }: EligibilityProps) => {
     const navigate = useNavigate();
 
     // View State
@@ -67,8 +71,11 @@ const EligibilityPage = () => {
     };
 
     const handleProceed = () => {
-        // Proceed to Phase 7 (Bank Details etc)
-        navigate('/bank');
+        if (onComplete) {
+            onComplete();
+        } else {
+            navigate('/bank');
+        }
     };
 
     // Calculate EMI Mathematics

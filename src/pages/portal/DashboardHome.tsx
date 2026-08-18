@@ -1,8 +1,13 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Clock, CheckCircle2, ChevronRight,
     Banknote, Calendar, ShieldAlert, User, HelpCircle, FileText
 } from 'lucide-react';
+import KycPage from '../KycPage';
+import EligibilityPage from '../EligibilityPage';
+import BankDetailsPage from '../BankDetailsPage';
+import SelfiePage from '../SelfiePage';
 import './DashboardHome.css';
 
 const formatCurrency = (value: number) => {
@@ -16,6 +21,9 @@ const formatCurrency = (value: number) => {
 const DashboardHome = () => {
     const navigate = useNavigate();
 
+    // Verification Flow State (0: KYC, 1: Eligibility, 2: Bank, 3: Selfie, 4: Done)
+    const [onboardingStep, setOnboardingStep] = useState(0);
+
     // Mock Payload for user
     const user = {
         name: "Rahul Sharma",
@@ -23,6 +31,25 @@ const DashboardHome = () => {
         tenure: 12,
         emi: 8885
     };
+
+    // If verification is not complete, hijack the dashboard exactly as requested.
+    if (onboardingStep < 4) {
+        return (
+            <div className="onboarding-dashboard-view">
+                <header className="welcome-header" style={{ marginBottom: '1rem' }}>
+                    <h1>Welcome back, {user.name.split(' ')[0]}</h1>
+                    <p>Please complete your verification to unlock your EZFINANZ dashboard.</p>
+                </header>
+
+                <div className="onboarding-widget-container" style={{ background: '#f8fafc', padding: '1rem', borderRadius: '1rem', border: '1px solid #e2e8f0' }}>
+                    {onboardingStep === 0 && <KycPage onComplete={() => setOnboardingStep(1)} />}
+                    {onboardingStep === 1 && <EligibilityPage onComplete={() => setOnboardingStep(2)} />}
+                    {onboardingStep === 2 && <BankDetailsPage onComplete={() => setOnboardingStep(3)} />}
+                    {onboardingStep === 3 && <SelfiePage onComplete={() => setOnboardingStep(4)} />}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <>

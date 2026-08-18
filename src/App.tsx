@@ -2,11 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 // Core Flow Imports
 import AuthPage from './pages/AuthPage';
-import VerificationPage from './pages/VerificationPage';
-import KycPage from './pages/KycPage';
-import EligibilityPage from './pages/EligibilityPage';
-import BankDetailsPage from './pages/BankDetailsPage';
-import SelfiePage from './pages/SelfiePage';
 
 // Portal Phase 10.5 Imports
 import CustomerLayout from './components/layout/CustomerLayout';
@@ -28,11 +23,6 @@ function App() {
             <Routes>
                 {/* Core Onboarding Routes */}
                 <Route path="/" element={<AuthPage />} />
-                <Route path="/verify" element={<VerificationPage />} />
-                <Route path="/kyc" element={<KycPage />} />
-                <Route path="/eligibility" element={<EligibilityPage />} />
-                <Route path="/bank" element={<BankDetailsPage />} />
-                <Route path="/selfie" element={<SelfiePage />} />
 
                 {/* User Dashboard Application Routes */}
                 <Route path="/dashboard" element={<CustomerLayout />}>

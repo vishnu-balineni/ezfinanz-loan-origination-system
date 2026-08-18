@@ -122,14 +122,14 @@ const AuthPage = () => {
         // Here we mock verifying the OTP with the backend API
         if (otp.join('').length === 4) {
             alert("Verification successful!");
-            navigate('/verify');
+            navigate('/dashboard');
         }
     };
 
     const handleGoogleOauth = () => {
         alert("Mock OAuth: Authenticated with Google successfully.");
         // Redirecting directly based on mock role resolution
-        navigate('/verify');
+        navigate('/dashboard');
     };
 
     const handleAdminLoginInfo = () => {

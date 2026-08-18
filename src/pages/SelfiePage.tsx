@@ -5,7 +5,11 @@ import { Stepper } from '../components/Stepper';
 import TrustFooter from '../components/shared/TrustFooter';
 import './SelfiePage.css';
 
-const SelfiePage = () => {
+interface SelfieProps {
+    onComplete?: () => void;
+}
+
+const SelfiePage = ({ onComplete }: SelfieProps) => {
     const navigate = useNavigate();
 
     // References for DOM elements
@@ -89,7 +93,11 @@ const SelfiePage = () => {
     };
 
     const returnToDashboard = () => {
-        navigate('/dashboard');
+        if (onComplete) {
+            onComplete();
+        } else {
+            navigate('/dashboard');
+        }
     };
 
     // If completely submitted, overtake screen with Success State

@@ -5,7 +5,11 @@ import { Stepper } from '../components/Stepper';
 import TrustFooter from '../components/shared/TrustFooter';
 import './BankDetailsPage.css';
 
-const BankDetailsPage = () => {
+interface BankDetailsProps {
+    onComplete?: () => void;
+}
+
+const BankDetailsPage = ({ onComplete }: BankDetailsProps) => {
     const navigate = useNavigate();
 
     // Form States
@@ -44,8 +48,11 @@ const BankDetailsPage = () => {
 
     const handleFinalProceed = () => {
         if (isVerified && isAccepted) {
-            // Move to final success / home / dashboard
-            navigate('/selfie');
+            if (onComplete) {
+                onComplete();
+            } else {
+                navigate('/selfie');
+            }
         }
     };
 
