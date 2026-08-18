@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import {
     Clock, CheckCircle2, ChevronRight,
     Wallet, Banknote, Calendar, ShieldAlert,
-    Download, RefreshCcw, Headset
+    Download, RefreshCcw, Headset,
+    PiggyBank, Info
 } from 'lucide-react';
 import './DashboardHome.css';
+import './ProfileStyles.css'; // For the dark hero region
 
 const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -18,22 +20,23 @@ const formatCurrency = (value: number) => {
 const DashboardHome = () => {
     const navigate = useNavigate();
 
-    // Toggle for Demo purposes to show both states asked in UX blueprint
+    // Toggle for Demo purposes
     const [loanStatus, setLoanStatus] = useState<'pending' | 'active'>('active');
 
     // Mock Payload for user
     const user = {
         name: "Rahul Sharma",
-        loanAmount: 100000,
+        requestedAmount: 100000,
+        disbursedAmount: 100000,
         tenure: 12,
         interestRate: 12,
-        outstandingBalance: 65000,
+        outstandingPrincipal: 65000,
         emi: 8885
     };
 
     return (
         <>
-            {/* Demo Toggle Banner (To easily show the user both UX states) */}
+            {/* Demo Toggle Banner */}
             <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 100, background: 'white', padding: '0.5rem', borderRadius: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', display: 'flex', gap: '0.5rem', border: '1px solid #e2e8f0' }}>
                 <button
                     onClick={() => setLoanStatus('pending')}
@@ -49,18 +52,23 @@ const DashboardHome = () => {
                 </button>
             </div>
 
-            {/* 1. Welcome Header & Alert Banner */}
-            <header className="welcome-header">
-                <h1>Welcome back, {user.name.split(' ')[0]}!</h1>
-                <p>Welcome to your central loan management hub.</p>
-            </header>
+            {/* 1. Hero Region (Dark Navy Top Banner) */}
+            <div className="profile-header-card" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="header-user-info">
+                    <h2 className="header-user-name">Welcome back, {user.name.split(' ')[0]}!</h2>
+                    <span className="header-user-role" style={{ color: '#94a3b8', fontWeight: 500, fontSize: '1rem', marginTop: '0.5rem' }}>
+                        Your central dashboard for managing active loans and applications.
+                    </span>
+                </div>
+            </div>
 
+            {/* Alert Banner */}
             {loanStatus === 'pending' && (
                 <div style={{ background: '#fef3c7', border: '1px solid #fcd34d', padding: '1rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', color: '#b45309' }}>
                     <Clock size={24} />
                     <div>
                         <strong style={{ display: 'block', marginBottom: '0.25rem' }}>Application Under Review</strong>
-                        <span style={{ fontSize: '0.9rem' }}>⏳ Your application is currently under Admin Review. Our team is verifying your details.</span>
+                        <span style={{ fontSize: '0.9rem' }}>⏳ Your requested loan is currently under Admin Review. We are verifying your details.</span>
                     </div>
                 </div>
             )}
@@ -70,7 +78,7 @@ const DashboardHome = () => {
                     <CheckCircle2 size={24} />
                     <div>
                         <strong style={{ display: 'block', marginBottom: '0.25rem' }}>Loan Active & Disbursed</strong>
-                        <span style={{ fontSize: '0.9rem' }}>🎉 Congratulations! Your loan of {formatCurrency(user.loanAmount)} has been approved and disbursed.</span>
+                        <span style={{ fontSize: '0.9rem' }}>🎉 Congratulations! Your loan has been successfully disbursed to your bank account.</span>
                     </div>
                 </div>
             )}
@@ -87,20 +95,20 @@ const DashboardHome = () => {
                                 <Wallet size={150} />
                             </div>
 
-                            <h3 style={{ fontSize: '1rem', color: '#94a3b8', margin: '0 0 0.5rem 0', fontWeight: 600 }}>Next Payment Due</h3>
+                            <h3 style={{ fontSize: '1rem', color: '#94a3b8', margin: '0 0 0.5rem 0', fontWeight: 600 }}>Next EMI Payment Due</h3>
                             <div style={{ fontSize: '3.5rem', fontWeight: 800, margin: '0 0 1rem 0' }}>
                                 {formatCurrency(user.emi)}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', marginBottom: '2rem' }}>
-                                <Calendar size={18} /> Due on 05 Nov 2026
+                                <Calendar size={18} /> Auto-debit scheduled for 05 Nov 2026
                             </div>
                             <button style={{ background: '#10b981', color: 'white', border: 'none', padding: '1rem 2.5rem', borderRadius: '0.5rem', fontSize: '1.1rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}>
-                                Pay Now
+                                Pay Manually Now
                             </button>
                         </div>
                     ) : (
                         <div className="dash-card">
-                            <h3 className="card-title">Application Status</h3>
+                            <h3 className="card-title">Application Timeline Tracker</h3>
                             <div className="timeline-container">
                                 <div className="timeline-step">
                                     <div className="timeline-icon completed"><CheckCircle2 size={18} /></div>
@@ -134,22 +142,32 @@ const DashboardHome = () => {
                         </div>
                     )}
 
-                    {/* 3. Loan Snapshot */}
+                    {/* 3. Loan Component Overhauled (Clarified terms) */}
                     <div className="dash-card">
-                        <h3 className="card-title">Loan Snapshot</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                            <h3 className="card-title" style={{ margin: 0 }}>
+                                {loanStatus === 'active' ? 'Active Loan Summary' : 'Requested Loan Overview'}
+                            </h3>
+                            <span title="Details regarding your principal amount and interest.">
+                                <Info size={16} color="#94a3b8" />
+                            </span>
+                        </div>
+
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
                             <div style={{ padding: '1.25rem', background: '#f8fafc', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
                                 <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Banknote size={16} color="#10b981" /> Total Amount
+                                    <Banknote size={16} color="#10b981" />
+                                    {loanStatus === 'active' ? 'Total Disbursed' : 'Requested Amount'}
                                 </div>
                                 <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
-                                    {formatCurrency(user.loanAmount)}
+                                    {formatCurrency(loanStatus === 'active' ? user.disbursedAmount : user.requestedAmount)}
                                 </div>
                             </div>
 
                             <div style={{ padding: '1.25rem', background: '#f8fafc', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
                                 <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Calendar size={16} color="#3b82f6" /> Tenure
+                                    <Calendar size={16} color="#3b82f6" />
+                                    {loanStatus === 'active' ? 'Total Tenure' : 'Preferred Tenure'}
                                 </div>
                                 <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
                                     {user.tenure} Months
@@ -158,7 +176,8 @@ const DashboardHome = () => {
 
                             <div style={{ padding: '1.25rem', background: '#f8fafc', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
                                 <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <ShieldAlert size={16} color="#8b5cf6" /> Interest Rate
+                                    <ShieldAlert size={16} color="#8b5cf6" />
+                                    {loanStatus === 'active' ? 'Fixed Interest Rate' : 'Expected APR'}
                                 </div>
                                 <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
                                     {user.interestRate}% p.a.
@@ -167,10 +186,11 @@ const DashboardHome = () => {
 
                             <div style={{ padding: '1.25rem', background: loanStatus === 'active' ? '#ecfdf5' : '#f8fafc', borderRadius: '0.75rem', border: `1px solid ${loanStatus === 'active' ? '#a7f3d0' : '#e2e8f0'}` }}>
                                 <div style={{ color: loanStatus === 'active' ? '#047857' : '#64748b', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Wallet size={16} /> Current Balance
+                                    {loanStatus === 'active' ? <PiggyBank size={16} /> : <Clock size={16} />}
+                                    {loanStatus === 'active' ? 'Outstanding Principal' : 'Current Status'}
                                 </div>
                                 <div style={{ fontSize: '1.5rem', fontWeight: 700, color: loanStatus === 'active' ? '#065f46' : '#1e293b' }}>
-                                    {loanStatus === 'active' ? formatCurrency(user.outstandingBalance) : '₹0'}
+                                    {loanStatus === 'active' ? formatCurrency(user.outstandingPrincipal) : 'Pending Review'}
                                 </div>
                             </div>
                         </div>

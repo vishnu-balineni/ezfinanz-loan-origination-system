@@ -4,6 +4,7 @@ import EligibilityPage from '../EligibilityPage';
 import BankDetailsPage from '../BankDetailsPage';
 import SelfiePage from '../SelfiePage';
 import { ShieldCheck, CheckCircle2 } from 'lucide-react';
+import './ProfileStyles.css';
 
 const VerificationFlow = () => {
     // Verification Flow State (0: KYC, 1: Eligibility, 2: Bank, 3: Selfie, 4: Done)
@@ -11,12 +12,16 @@ const VerificationFlow = () => {
 
     return (
         <div className="onboarding-dashboard-view">
-            <header className="welcome-header" style={{ marginBottom: '1.5rem' }}>
-                <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, color: '#1e293b', fontSize: '1.75rem' }}>
-                    <ShieldCheck size={28} color="#16a34a" /> Identity & Verification
-                </h1>
-                <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Complete the required regulatory steps to unlock your loan disbursal.</p>
-            </header>
+            <div className="profile-header-card" style={{ marginBottom: '2rem' }}>
+                <div className="header-user-info">
+                    <h2 className="header-user-name" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <ShieldCheck size={28} color="#10b981" /> Identity & Verification
+                    </h2>
+                    <span className="header-user-role" style={{ color: '#94a3b8', fontWeight: 500, fontSize: '1rem', marginTop: '0.5rem' }}>
+                        Complete the required regulatory steps to unlock your loan disbursal.
+                    </span>
+                </div>
+            </div>
 
             {onboardingStep < 4 ? (
                 <div className="onboarding-widget-container" style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '1rem', border: '1px solid #e2e8f0' }}>

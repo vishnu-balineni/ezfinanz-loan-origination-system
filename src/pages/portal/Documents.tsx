@@ -1,6 +1,7 @@
 import { FileText, Download, ShieldCheck, PlusCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import './DashboardHome.css';
+import './ProfileStyles.css';
 
 const Documents = () => {
     const navigate = useNavigate();
@@ -31,10 +32,14 @@ const Documents = () => {
 
     return (
         <div className="documents-page">
-            <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                    <h1 className="page-title">Digital Documents</h1>
-                    <p className="page-subtitle">Access your loan agreements, e-mandates, and repayment schedules securely.</p>
+            <div className="profile-header-card" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="header-user-info">
+                    <h2 className="header-user-name" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <FileText size={28} color="#10b981" /> Digital Documents
+                    </h2>
+                    <span className="header-user-role" style={{ color: '#94a3b8', fontWeight: 500, fontSize: '1rem', marginTop: '0.5rem' }}>
+                        Access your loan agreements, e-mandates, and repayment schedules securely.
+                    </span>
                 </div>
                 <button
                     onClick={() => navigate('/dashboard/apply')}
@@ -48,7 +53,7 @@ const Documents = () => {
                     <PlusCircle size={18} />
                     Apply for New Loan
                 </button>
-            </header>
+            </div>
 
             <div className="dash-card">
                 <h3 className="card-title">

@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Download, History, CheckCircle2, FileText, ArrowLeft, Banknote, Calendar, ChevronRight } from 'lucide-react';
+import { Download, History, CheckCircle2, FileText, ArrowLeft, Banknote, Calendar, ChevronRight, Clock } from 'lucide-react';
 import './DashboardHome.css';
+import './ProfileStyles.css'; // For the dark hero region
 
 const LoanHistory = () => {
     // If null, show the list of all loans. Otherwise, show the details for the selected loan ID.
     const [selectedLoan, setSelectedLoan] = useState<string | null>(null);
 
-    // Mock data for multiple loans
+    // Mock data for multiple loans (Including pending request)
     const loans = [
+        { id: 'L-11002', type: 'Personal Loan', amount: 80000, date: 'Oct 28, 2026', status: 'Pending Approval', tenure: 12 },
         { id: 'L-10294', type: 'Personal Loan', amount: 100000, date: 'Oct 24, 2026', status: 'Active', tenure: 12 },
         { id: 'L-08112', type: 'Consumer Durable', amount: 45000, date: 'Jan 15, 2025', status: 'Closed', tenure: 6 },
         { id: 'L-05331', type: 'Medical Emergency', amount: 200000, date: 'Mar 10, 2023', status: 'Closed', tenure: 24 }
@@ -17,53 +19,75 @@ const LoanHistory = () => {
         return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
     };
 
+    // Helper for Status Badge styling
+    const getStatusStyle = (status: string) => {
+        if (status === 'Active') return { bg: '#dcfce7', text: '#166534' };
+        if (status === 'Pending Approval') return { bg: '#fef3c7', text: '#b45309' };
+        return { bg: '#e2e8f0', text: '#475569' };
+    };
+
+    const getIconStyle = (status: string) => {
+        if (status === 'Active') return { bg: '#ecfdf5', text: '#10b981' };
+        if (status === 'Pending Approval') return { bg: '#fef9c3', text: '#ca8a04' };
+        return { bg: '#f1f5f9', text: '#64748b' };
+    };
+
     // VIEW: All Loans List
     if (!selectedLoan) {
         return (
             <div className="history-page" style={{ paddingBottom: '2rem' }}>
-                <header className="page-header" style={{ marginBottom: '2rem' }}>
-                    <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e293b' }}>
-                        <History size={28} color="#10b981" /> My Loan History
-                    </h1>
-                    <p className="page-subtitle" style={{ color: '#64748b' }}>Select an active or previous loan to view its payment schedule, logs, and receipts.</p>
-                </header>
+                <div className="profile-header-card" style={{ marginBottom: '2rem' }}>
+                    <div className="header-user-info">
+                        <h2 className="header-user-name" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <History size={28} color="#10b981" /> My Loan History
+                        </h2>
+                        <span className="header-user-role" style={{ color: '#94a3b8', fontWeight: 500, fontSize: '1rem', marginTop: '0.5rem' }}>
+                            A complete record of your active, pending, and past loan applications.
+                        </span>
+                    </div>
+                </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {loans.map(loan => (
-                        <div key={loan.id} className="dash-card" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'transform 0.2s', cursor: 'pointer', border: '1px solid #e2e8f0' }} onClick={() => setSelectedLoan(loan.id)}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                                <div style={{ background: loan.status === 'Active' ? '#ecfdf5' : '#f1f5f9', color: loan.status === 'Active' ? '#10b981' : '#64748b', padding: '1rem', borderRadius: '0.75rem' }}>
-                                    <Banknote size={24} />
-                                </div>
-                                <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
-                                        <h3 style={{ margin: 0, color: '#1e293b', fontSize: '1.1rem' }}>{loan.type}</h3>
-                                        <span style={{
-                                            background: loan.status === 'Active' ? '#dcfce7' : '#e2e8f0',
-                                            color: loan.status === 'Active' ? '#166534' : '#475569',
-                                            padding: '0.2rem 0.6rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600
-                                        }}>
-                                            {loan.status}
-                                        </span>
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#64748b', fontSize: '0.85rem' }}>
-                                        <span>ID: {loan.id}</span>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Calendar size={14} /> Issued {loan.date}</span>
-                                    </div>
-                                </div>
-                            </div>
+                    {loans.map(loan => {
+                        const statusStyle = getStatusStyle(loan.status);
+                        const iconStyle = getIconStyle(loan.status);
 
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b' }}>{formatCurrency(loan.amount)}</div>
-                                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{loan.tenure} Months</div>
+                        return (
+                            <div key={loan.id} className="dash-card" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'transform 0.2s', cursor: 'pointer', border: '1px solid #e2e8f0' }} onClick={() => setSelectedLoan(loan.id)}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                                    <div style={{ background: iconStyle.bg, color: iconStyle.text, padding: '1rem', borderRadius: '0.75rem' }}>
+                                        <Banknote size={24} />
+                                    </div>
+                                    <div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
+                                            <h3 style={{ margin: 0, color: '#1e293b', fontSize: '1.1rem' }}>{loan.type}</h3>
+                                            <span style={{
+                                                background: statusStyle.bg,
+                                                color: statusStyle.text,
+                                                padding: '0.2rem 0.6rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600
+                                            }}>
+                                                {loan.status}
+                                            </span>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#64748b', fontSize: '0.85rem' }}>
+                                            <span>ID: {loan.id}</span>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Calendar size={14} /> Requested {loan.date}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div style={{ color: '#94a3b8' }}>
-                                    <ChevronRight size={24} />
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b' }}>{formatCurrency(loan.amount)}</div>
+                                        <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{loan.tenure} Months</div>
+                                    </div>
+                                    <div style={{ color: '#94a3b8' }}>
+                                        <ChevronRight size={24} />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         );
@@ -71,6 +95,7 @@ const LoanHistory = () => {
 
     // VIEW: Specific Loan Details
     const activeLoan = loans.find(l => l.id === selectedLoan);
+    const isPending = activeLoan?.status === 'Pending Approval';
 
     return (
         <div className="history-page" style={{ paddingBottom: '2rem' }}>
@@ -79,24 +104,26 @@ const LoanHistory = () => {
                 style={{
                     background: 'transparent', border: 'none', color: '#3b82f6',
                     fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem',
-                    cursor: 'pointer', padding: 0, marginBottom: '2rem'
+                    cursor: 'pointer', padding: 0, marginBottom: '1.5rem'
                 }}
             >
                 <ArrowLeft size={18} /> Back to All Loans
             </button>
 
-            <header className="page-header" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                    <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e293b', marginBottom: '0.5rem' }}>
-                        {activeLoan?.type} Details
-                    </h1>
-                    <p className="page-subtitle" style={{ color: '#64748b' }}>Loan Reference ID: {selectedLoan}</p>
+            <div className="profile-header-card" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="header-user-info">
+                    <h2 className="header-user-name">{activeLoan?.type} Overview</h2>
+                    <span className="header-user-role" style={{ color: '#94a3b8', fontWeight: 500, fontSize: '1rem', marginTop: '0.5rem' }}>
+                        Loan Reference ID: {selectedLoan}
+                    </span>
                 </div>
-                <div style={{ textAlign: 'right', background: 'white', padding: '1rem 1.5rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
-                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, marginBottom: '0.25rem' }}>Total Disbursed</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>{formatCurrency(activeLoan?.amount || 0)}</div>
+                <div style={{ textAlign: 'right', background: 'rgba(255, 255, 255, 0.1)', padding: '1rem 1.5rem', borderRadius: '0.5rem' }}>
+                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600, marginBottom: '0.25rem' }}>
+                        {isPending ? 'Requested Amount' : 'Total Disbursed'}
+                    </div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'white' }}>{formatCurrency(activeLoan?.amount || 0)}</div>
                 </div>
-            </header>
+            </div>
 
             {/* Payment Schedule & Receipts */}
             <div className="dash-card" style={{ marginBottom: '2rem' }}>
@@ -105,64 +132,72 @@ const LoanHistory = () => {
                     Payment Schedule & Receipts
                 </h3>
 
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                        <thead>
-                            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569', fontSize: '0.875rem' }}>
-                                <th style={{ padding: '1rem' }}>Date</th>
-                                <th style={{ padding: '1rem' }}>Transaction ID</th>
-                                <th style={{ padding: '1rem' }}>Description</th>
-                                <th style={{ padding: '1rem' }}>Amount</th>
-                                <th style={{ padding: '1rem' }}>Status</th>
-                                <th style={{ padding: '1rem' }}>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {activeLoan?.status === 'Active' && (
-                                <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                    <td style={{ padding: '1rem', color: '#1e293b' }}>05 Nov 2026</td>
-                                    <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>Upcoming</td>
-                                    <td style={{ padding: '1rem', color: '#1e293b' }}>EMI Payment (Month 3)</td>
-                                    <td style={{ padding: '1rem', fontWeight: 600 }}>₹8,885</td>
+                {isPending ? (
+                    <div style={{ padding: '2rem', textAlign: 'center', background: '#f8fafc', borderRadius: '0.5rem', border: '2px dashed #cbd5e1', color: '#64748b' }}>
+                        <Clock size={32} color="#94a3b8" style={{ margin: '0 auto 1rem auto' }} />
+                        <h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Awaiting Approval</h4>
+                        <p style={{ margin: 0 }}>Your payment schedule will be generated automatically once your application passes Admin Review and funds are disbursed.</p>
+                    </div>
+                ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                            <thead>
+                                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569', fontSize: '0.875rem' }}>
+                                    <th style={{ padding: '1rem' }}>Date</th>
+                                    <th style={{ padding: '1rem' }}>Transaction ID</th>
+                                    <th style={{ padding: '1rem' }}>Description</th>
+                                    <th style={{ padding: '1rem' }}>Amount</th>
+                                    <th style={{ padding: '1rem' }}>Status</th>
+                                    <th style={{ padding: '1rem' }}>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {activeLoan?.status === 'Active' && (
+                                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                        <td style={{ padding: '1rem', color: '#1e293b' }}>05 Nov 2026</td>
+                                        <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>Upcoming</td>
+                                        <td style={{ padding: '1rem', color: '#1e293b' }}>EMI Payment (Month 3)</td>
+                                        <td style={{ padding: '1rem', fontWeight: 600 }}>₹8,885</td>
+                                        <td style={{ padding: '1rem' }}>
+                                            <span style={{ background: '#fef3c7', color: '#b45309', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Pending</span>
+                                        </td>
+                                        <td style={{ padding: '1rem' }}>
+                                            <button style={{ background: '#10b981', color: 'white', border: 'none', padding: '0.4rem 1rem', borderRadius: '0.5rem', fontWeight: 600, cursor: 'pointer' }}>Pay Now</button>
+                                        </td>
+                                    </tr>
+                                )}
+                                <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#fdfdfd' }}>
+                                    <td style={{ padding: '1rem', color: '#1e293b' }}>05 {activeLoan?.status === 'Active' ? 'Oct' : 'Sep'} 2026</td>
+                                    <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>TXN-9844321A</td>
+                                    <td style={{ padding: '1rem', color: '#1e293b' }}>EMI Payment</td>
+                                    <td style={{ padding: '1rem', fontWeight: 600 }}>₹{Math.floor((activeLoan?.amount || 0) * 0.08)}</td>
                                     <td style={{ padding: '1rem' }}>
-                                        <span style={{ background: '#fef3c7', color: '#b45309', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Pending</span>
+                                        <span style={{ background: '#ecfdf5', color: '#065f46', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Paid</span>
                                     </td>
                                     <td style={{ padding: '1rem' }}>
-                                        <button style={{ background: '#10b981', color: 'white', border: 'none', padding: '0.4rem 1rem', borderRadius: '0.5rem', fontWeight: 600, cursor: 'pointer' }}>Pay Now</button>
+                                        <button style={{ background: 'transparent', border: 'none', color: '#10b981', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                            <Download size={14} /> Receipt
+                                        </button>
                                     </td>
                                 </tr>
-                            )}
-                            <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#fdfdfd' }}>
-                                <td style={{ padding: '1rem', color: '#1e293b' }}>05 {activeLoan?.status === 'Active' ? 'Oct' : 'Sep'} 2026</td>
-                                <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>TXN-9844321A</td>
-                                <td style={{ padding: '1rem', color: '#1e293b' }}>EMI Payment</td>
-                                <td style={{ padding: '1rem', fontWeight: 600 }}>₹{Math.floor((activeLoan?.amount || 0) * 0.08)}</td>
-                                <td style={{ padding: '1rem' }}>
-                                    <span style={{ background: '#ecfdf5', color: '#065f46', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Paid</span>
-                                </td>
-                                <td style={{ padding: '1rem' }}>
-                                    <button style={{ background: 'transparent', border: 'none', color: '#10b981', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                        <Download size={14} /> Receipt
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                <td style={{ padding: '1rem', color: '#1e293b' }}>05 {activeLoan?.status === 'Active' ? 'Sep' : 'Aug'} 2026</td>
-                                <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>TXN-3211559C</td>
-                                <td style={{ padding: '1rem', color: '#1e293b' }}>EMI Payment</td>
-                                <td style={{ padding: '1rem', fontWeight: 600 }}>₹{Math.floor((activeLoan?.amount || 0) * 0.08)}</td>
-                                <td style={{ padding: '1rem' }}>
-                                    <span style={{ background: '#ecfdf5', color: '#065f46', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Paid</span>
-                                </td>
-                                <td style={{ padding: '1rem' }}>
-                                    <button style={{ background: 'transparent', border: 'none', color: '#10b981', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                        <Download size={14} /> Receipt
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                                <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                    <td style={{ padding: '1rem', color: '#1e293b' }}>05 {activeLoan?.status === 'Active' ? 'Sep' : 'Aug'} 2026</td>
+                                    <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>TXN-3211559C</td>
+                                    <td style={{ padding: '1rem', color: '#1e293b' }}>EMI Payment</td>
+                                    <td style={{ padding: '1rem', fontWeight: 600 }}>₹{Math.floor((activeLoan?.amount || 0) * 0.08)}</td>
+                                    <td style={{ padding: '1rem' }}>
+                                        <span style={{ background: '#ecfdf5', color: '#065f46', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Paid</span>
+                                    </td>
+                                    <td style={{ padding: '1rem' }}>
+                                        <button style={{ background: 'transparent', border: 'none', color: '#10b981', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                            <Download size={14} /> Receipt
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
 
             {/* Application Logs */}

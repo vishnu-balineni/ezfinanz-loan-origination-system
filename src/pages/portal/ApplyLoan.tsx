@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Rocket, Stethoscope, Home, GraduationCap, Banknote, ArrowRight, ShieldCheck } from 'lucide-react';
 import './DashboardHome.css';
+import './ProfileStyles.css';
 
 const ApplyLoan = () => {
     const navigate = useNavigate();
@@ -52,17 +53,16 @@ const ApplyLoan = () => {
 
     return (
         <div className="onboarding-dashboard-view">
-            <header className="welcome-header" style={{ marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                    <div style={{ background: '#ecfdf5', padding: '0.75rem', borderRadius: '0.5rem', color: '#10b981' }}>
-                        <Rocket size={24} />
-                    </div>
-                    <h1 style={{ margin: 0, fontSize: '1.75rem', color: '#1e293b' }}>Start a New Application</h1>
+            <div className="profile-header-card" style={{ marginBottom: '2rem' }}>
+                <div className="header-user-info">
+                    <h2 className="header-user-name" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <Rocket size={28} color="#10b981" /> Start a New Application
+                    </h2>
+                    <span className="header-user-role" style={{ color: '#94a3b8', fontWeight: 500, fontSize: '1rem', marginTop: '0.5rem' }}>
+                        Flexible personal loans customized exactly to your needs with guaranteed fast disbursals.
+                    </span>
                 </div>
-                <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '0.5rem' }}>
-                    Flexible personal loans customized exactly to your needs with guaranteed fast disbursals.
-                </p>
-            </header>
+            </div>
 
             <form onSubmit={handleApply} style={{ maxWidth: '800px' }}>
                 <div className="dash-card" style={{ padding: '2rem', marginBottom: '2rem' }}>
