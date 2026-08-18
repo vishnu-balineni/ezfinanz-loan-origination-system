@@ -43,7 +43,7 @@ const BankDetailsPage = () => {
     const handleFinalProceed = () => {
         if (isVerified && isAccepted) {
             // Move to final success / home / dashboard
-            navigate('/home');
+            navigate('/selfie');
         }
     };
 
