@@ -1,7 +1,9 @@
-import { FileText, Download, ShieldCheck } from 'lucide-react';
+import { FileText, Download, ShieldCheck, PlusCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import './DashboardHome.css';
 
 const Documents = () => {
+    const navigate = useNavigate();
 
     // Configurable row mapping to exact prompt specs
     const DocumentRow = ({ name, size }: { name: string, size: string }) => (
@@ -29,9 +31,23 @@ const Documents = () => {
 
     return (
         <div className="documents-page">
-            <header className="page-header">
-                <h1 className="page-title">Digital Documents</h1>
-                <p className="page-subtitle">Access your loan agreements, e-mandates, and repayment schedules securely.</p>
+            <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                    <h1 className="page-title">Digital Documents</h1>
+                    <p className="page-subtitle">Access your loan agreements, e-mandates, and repayment schedules securely.</p>
+                </div>
+                <button
+                    onClick={() => navigate('/dashboard/apply')}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        background: '#10b981', color: 'white', border: 'none',
+                        padding: '0.75rem 1.25rem', borderRadius: '0.5rem',
+                        fontWeight: 600, cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)'
+                    }}
+                >
+                    <PlusCircle size={18} />
+                    Apply for New Loan
+                </button>
             </header>
 
             <div className="dash-card">

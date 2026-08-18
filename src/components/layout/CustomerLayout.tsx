@@ -6,7 +6,8 @@ import {
     LifeBuoy,
     LogOut,
     Target,
-    ShieldCheck
+    ShieldCheck,
+    PlusCircle
 } from 'lucide-react';
 import './CustomerLayout.css';
 
@@ -40,6 +41,14 @@ const CustomerLayout = () => {
                         >
                             <LayoutDashboard size={18} />
                             Dashboard
+                        </NavLink>
+
+                        <NavLink
+                            to="/dashboard/apply"
+                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                        >
+                            <PlusCircle size={18} />
+                            Apply for Loan
                         </NavLink>
 
                         <NavLink
