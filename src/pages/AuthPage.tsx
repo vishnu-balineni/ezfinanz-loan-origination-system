@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Phone, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck, Fingerprint, Sparkles } from 'lucide-react';
+import './AuthPage.css'; // Importing normal CSS
 
 const AuthPage = () => {
     const navigate = useNavigate();
@@ -14,6 +15,8 @@ const AuthPage = () => {
 
     // Phone form states
     const [phone, setPhone] = useState('');
+
+    // Shared OTP states
     const [otpSent, setOtpSent] = useState(false);
     const [otp, setOtp] = useState(['', '', '', '']);
     const [countdown, setCountdown] = useState(0);
@@ -26,10 +29,17 @@ const AuthPage = () => {
     const strengthScore = [hasMinLength, hasNumber, hasSpecialChar].filter(Boolean).length;
 
     const getStrengthColor = () => {
-        if (strengthScore === 0) return 'bg-slate-200';
-        if (strengthScore === 1) return 'bg-red-400';
-        if (strengthScore === 2) return 'bg-yellow-400';
-        return 'bg-emerald-500';
+        if (strengthScore === 0) return '#e2e8f0';
+        if (strengthScore === 1) return '#f87171';
+        if (strengthScore === 2) return '#facc15';
+        return '#10b981';
+    };
+
+    const getStrengthBadgeClass = () => {
+        if (strengthScore === 0) return '';
+        if (strengthScore === 1) return 'strength-weak';
+        if (strengthScore === 2) return 'strength-fair';
+        return 'strength-strong';
     };
 
     const getStrengthText = () => {
@@ -50,11 +60,30 @@ const AuthPage = () => {
         return () => window.clearInterval(timer);
     }, [countdown]);
 
+    // Send OTP logic (Mocking real backend API)
     const handleSendOtp = (e: React.FormEvent) => {
         e.preventDefault();
-        if (phone.length === 10) {
+
+        let valid = false;
+        let target = '';
+
+        if (method === 'phone' && phone.length === 10) {
+            valid = true;
+            target = '+91 ' + phone;
+        } else if (method === 'email' && email.length > 0) {
+            // For sign-ups, we want to ensure password is also strong, but for demo we just check length
+            if (!isLogin && strengthScore < 3) {
+                alert("Please meet all password requirements before proceeding.");
+                return;
+            }
+            valid = true;
+            target = email;
+        }
+
+        if (valid) {
             setOtpSent(true);
             setCountdown(30);
+            alert(`Mock Backend Notice: Sending verification OTP to ${target}.\n\nIn a real app, this would use a service like Twilio or regular email backend!`);
         }
     };
 
@@ -62,6 +91,8 @@ const AuthPage = () => {
         if (countdown === 0) {
             setOtp(['', '', '', '']);
             setCountdown(30);
+            const target = method === 'phone' ? `+91 ${phone}` : email;
+            alert(`Mock Backend Notice: RE-Sending verification OTP to ${target}`);
         }
     };
 
@@ -87,282 +118,266 @@ const AuthPage = () => {
         }
     };
 
+    const handleVerifyOtp = () => {
+        // Here we mock verifying the OTP with the backend API
+        if (otp.join('').length === 4) {
+            alert("Verification successful!");
+            navigate('/home');
+        }
+    };
+
+    const switchMethod = (newMethod: 'email' | 'phone') => {
+        setMethod(newMethod);
+        setOtpSent(false);
+        setOtp(['', '', '', '']);
+    };
+
     const renderPasswordRules = () => (
-        <div className="mt-4 space-y-2 text-sm text-slate-500">
-            <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">Password strength</span>
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${strengthScore === 3 ? 'bg-emerald-100 text-emerald-700' : strengthScore === 2 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+        <div className="password-rules">
+            <div className="rules-header">
+                <span>Password strength</span>
+                <span className={`strength-badge ${getStrengthBadgeClass()}`}>
                     {getStrengthText()}
                 </span>
             </div>
-            <div className="flex gap-1 mb-4 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                <div className={`h-full transition-all duration-300 ${strengthScore >= 1 ? getStrengthColor() : 'bg-transparent'} ${strengthScore === 1 ? 'w-1/3' : strengthScore === 2 ? 'w-2/3' : strengthScore === 3 ? 'w-full' : 'w-0'}`} />
+            <div className="strength-bar-container">
+                <div
+                    className="strength-bar"
+                    style={{
+                        backgroundColor: getStrengthColor(),
+                        width: strengthScore === 1 ? '33.33%' : strengthScore === 2 ? '66.66%' : strengthScore === 3 ? '100%' : '0'
+                    }}
+                />
             </div>
-            <div className="flex items-center gap-2 transition-colors duration-300" style={{ color: hasMinLength ? '#059669' : 'inherit' }}>
-                <CheckCircle2 size={16} className={hasMinLength ? 'text-emerald-600' : 'text-slate-300'} />
+            <div className="rule-item" style={{ color: hasMinLength ? '#059669' : 'inherit' }}>
+                <CheckCircle2 size={16} color={hasMinLength ? '#059669' : '#cbd5e1'} />
                 <span>At least 8 characters</span>
             </div>
-            <div className="flex items-center gap-2 transition-colors duration-300" style={{ color: hasNumber ? '#059669' : 'inherit' }}>
-                <CheckCircle2 size={16} className={hasNumber ? 'text-emerald-600' : 'text-slate-300'} />
+            <div className="rule-item" style={{ color: hasNumber ? '#059669' : 'inherit' }}>
+                <CheckCircle2 size={16} color={hasNumber ? '#059669' : '#cbd5e1'} />
                 <span>Contains at least one number</span>
             </div>
-            <div className="flex items-center gap-2 transition-colors duration-300" style={{ color: hasSpecialChar ? '#059669' : 'inherit' }}>
-                <CheckCircle2 size={16} className={hasSpecialChar ? 'text-emerald-600' : 'text-slate-300'} />
+            <div className="rule-item" style={{ color: hasSpecialChar ? '#059669' : 'inherit' }}>
+                <CheckCircle2 size={16} color={hasSpecialChar ? '#059669' : '#cbd5e1'} />
                 <span>Contains at least one special character</span>
             </div>
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-8 font-sans text-slate-800 relative overflow-hidden">
-
+        <div className="auth-page-container">
             {/* Background ambient glows */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-400/20 blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-green-400/20 blur-[120px] pointer-events-none" />
+            <div className="auth-ambient-glow-1" />
+            <div className="auth-ambient-glow-2" />
 
-            <div className="w-full max-w-md relative z-10">
+            <div className="auth-content-wrapper">
 
                 {/* Brand Header */}
-                <div className="text-center mb-8 flex flex-col items-center">
-                    <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-400 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/25">
-                        <Sparkles className="text-white" size={28} />
+                <div className="auth-brand-header">
+                    <div className="auth-logo-box">
+                        <Sparkles size={28} />
                     </div>
-                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-800 to-emerald-500">
+                    <h1 className="auth-title">
                         EZFINANZ LOS
                     </h1>
-                    <p className="text-slate-500 mt-2">The next generation loan platform.</p>
+                    <p className="auth-subtitle">The next generation loan platform.</p>
                 </div>
 
                 {/* Card Container */}
-                <div className="bg-white border border-slate-100 p-8 rounded-3xl shadow-xl shadow-slate-200/50 transition-all">
+                <div className="auth-card">
 
                     {/* Main Toggle (Login vs Signup) */}
-                    <div className="flex bg-slate-100 p-1 rounded-2xl mb-8 border border-slate-200">
+                    <div className="auth-main-toggle">
                         <button
-                            onClick={() => setIsLogin(true)}
-                            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-500 ease-in-out ${isLogin
-                                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
-                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
-                                }`}
+                            onClick={() => { setIsLogin(true); setOtpSent(false); }}
+                            className={`auth-toggle-btn ${isLogin ? 'active' : 'inactive'}`}
                         >
                             Log In
                         </button>
                         <button
-                            onClick={() => setIsLogin(false)}
-                            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-500 ease-in-out ${!isLogin
-                                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
-                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
-                                }`}
+                            onClick={() => { setIsLogin(false); setOtpSent(false); }}
+                            className={`auth-toggle-btn ${!isLogin ? 'active' : 'inactive'}`}
                         >
                             Sign Up
                         </button>
                     </div>
 
-                    <div className="mb-8">
-                        <h2 className="text-2xl font-semibold mb-1 text-slate-800">
-                            {isLogin ? 'Welcome back' : 'Create an account'}
-                        </h2>
-                        <p className="text-sm text-slate-500">
-                            {isLogin
-                                ? 'Enter your details to access your dashboard.'
-                                : 'Sign up to start your loan application process.'}
-                        </p>
-                    </div>
+                    {!otpSent && (
+                        <div className="auth-header-text animate-fade-in">
+                            <h2>
+                                {isLogin ? 'Welcome back' : 'Create an account'}
+                            </h2>
+                            <p>
+                                {isLogin
+                                    ? 'Enter your details to access your dashboard.'
+                                    : 'Sign up to start your loan application process.'}
+                            </p>
+                        </div>
+                    )}
 
                     {/* Secondary Tab Control (Email vs Phone) */}
-                    <div className="flex gap-4 mb-8">
-                        <button
-                            onClick={() => { setMethod('email'); setOtpSent(false); }}
-                            className={`flex items-center justify-center gap-2 flex-1 pb-3 text-sm font-medium border-b-2 transition-colors ${method === 'email'
-                                ? 'border-emerald-500 text-emerald-600'
-                                : 'border-transparent text-slate-400 hover:text-slate-600'
-                                }`}
-                        >
-                            <Mail size={16} />
-                            Email
-                        </button>
-                        <button
-                            onClick={() => setMethod('phone')}
-                            className={`flex items-center justify-center gap-2 flex-1 pb-3 text-sm font-medium border-b-2 transition-colors ${method === 'phone'
-                                ? 'border-emerald-500 text-emerald-600'
-                                : 'border-transparent text-slate-400 hover:text-slate-600'
-                                }`}
-                        >
-                            <Phone size={16} />
-                            Phone Number
-                        </button>
-                    </div>
+                    {!otpSent && (
+                        <div className="auth-method-tabs animate-fade-in">
+                            <button
+                                onClick={() => switchMethod('email')}
+                                className={`auth-tab-btn ${method === 'email' ? 'active' : ''}`}
+                            >
+                                <Mail size={16} />
+                                Email
+                            </button>
+                            <button
+                                onClick={() => switchMethod('phone')}
+                                className={`auth-tab-btn ${method === 'phone' ? 'active' : ''}`}
+                            >
+                                <Phone size={16} />
+                                Phone Number
+                            </button>
+                        </div>
+                    )}
 
                     {/* Forms */}
-                    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
+                    <div className="animate-fade-in">
 
-                        {method === 'email' && (
-                            <form onSubmit={(e) => {
-                                e.preventDefault();
-                                navigate('/home');
-                            }} className="space-y-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-slate-700 ml-1">Email Address</label>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                        {!otpSent ? (
+                            <form onSubmit={handleSendOtp}>
+                                {method === 'email' && (
+                                    <>
+                                        <div className="form-group">
+                                            <label>Email Address</label>
+                                            <div className="input-wrapper">
+                                                <Mail className="input-icon" size={20} />
+                                                <input
+                                                    type="email"
+                                                    required
+                                                    placeholder="you@example.com"
+                                                    value={email}
+                                                    onChange={e => setEmail(e.target.value)}
+                                                    className="auth-input"
+                                                />
+                                            </div>
                                         </div>
-                                        <input
-                                            type="email"
-                                            required
-                                            placeholder="you@example.com"
-                                            value={email}
-                                            onChange={e => setEmail(e.target.value)}
-                                            className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-slate-800 placeholder-slate-400 transition-all outline-none"
-                                        />
-                                    </div>
-                                </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-slate-700 ml-1">Password</label>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                                        <div className="form-group">
+                                            <label>Password</label>
+                                            <div className="input-wrapper">
+                                                <Lock className="input-icon" size={20} />
+                                                <input
+                                                    type={showPassword ? 'text' : 'password'}
+                                                    required
+                                                    value={password}
+                                                    onChange={e => setPassword(e.target.value)}
+                                                    placeholder="••••••••"
+                                                    className="auth-input"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="password-toggle"
+                                                >
+                                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                </button>
+                                            </div>
                                         </div>
-                                        <input
-                                            type={showPassword ? 'text' : 'password'}
-                                            required
-                                            value={password}
-                                            onChange={e => setPassword(e.target.value)}
-                                            placeholder="••••••••"
-                                            className="w-full pl-11 pr-11 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-slate-800 placeholder-slate-400 transition-all outline-none"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
-                                        >
-                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                        </button>
-                                    </div>
-                                </div>
 
-                                {/* Password Strength Meter (Only on Signup) */}
-                                {!isLogin && renderPasswordRules()}
+                                        {!isLogin && renderPasswordRules()}
 
-                                {isLogin && (
-                                    <div className="flex justify-end">
-                                        <button type="button" className="text-sm text-emerald-600 hover:text-emerald-500 transition-colors">
-                                            Forgot password?
-                                        </button>
+                                        {isLogin && (
+                                            <div className="forgot-password">
+                                                <button type="button">Forgot password?</button>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+
+                                {method === 'phone' && (
+                                    <div className="form-group">
+                                        <label>Phone Number</label>
+                                        <div className="input-wrapper">
+                                            <Phone className="input-icon" size={20} />
+                                            <input
+                                                type="tel"
+                                                required
+                                                value={phone}
+                                                onChange={e => {
+                                                    const val = e.target.value.replace(/\D/g, '');
+                                                    if (val.length <= 10) setPhone(val);
+                                                }}
+                                                placeholder="Enter 10-digit number"
+                                                className="auth-input"
+                                            />
+                                        </div>
                                     </div>
                                 )}
 
                                 <button
                                     type="submit"
-                                    className="w-full mt-6 py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                                    className="auth-submit-btn"
+                                    disabled={method === 'phone' && phone.length < 10}
                                 >
-                                    {isLogin ? 'Sign In' : 'Create Account'}
+                                    {isLogin ? (method === 'email' ? 'Sign In w/ OTP' : 'Send OTP') : 'Send Verification OTP'}
                                     <ArrowRight size={18} />
                                 </button>
                             </form>
-                        )}
+                        ) : (
+                            <div className="otp-verification animate-fade-in">
+                                <div className="otp-icon-container">
+                                    <Fingerprint size={24} />
+                                </div>
+                                <h3>Verify your {method}</h3>
+                                <p>
+                                    We sent a code to <strong>{method === 'phone' ? `+91 ${phone}` : email}</strong>
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => setOtpSent(false)}
+                                    className="change-number-btn"
+                                >
+                                    Change {method}
+                                </button>
 
-                        {method === 'phone' && (
-                            <div className="space-y-4">
-                                {!otpSent ? (
-                                    <form onSubmit={handleSendOtp} className="space-y-6">
-                                        <div className="space-y-1.5">
-                                            <label className="text-sm font-medium text-slate-700 ml-1">Phone Number</label>
-                                            <div className="relative group">
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                                    <Phone className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                                                </div>
-                                                <input
-                                                    type="tel"
-                                                    required
-                                                    value={phone}
-                                                    onChange={e => {
-                                                        const val = e.target.value.replace(/\D/g, '');
-                                                        if (val.length <= 10) setPhone(val);
-                                                    }}
-                                                    placeholder="Enter 10-digit number"
-                                                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-slate-800 placeholder-slate-400 transition-all outline-none"
-                                                />
-                                            </div>
-                                        </div>
+                                <div className="otp-inputs">
+                                    {otp.map((digit, i) => (
+                                        <input
+                                            key={i}
+                                            id={`otp-input-${i}`}
+                                            type="text"
+                                            inputMode="numeric"
+                                            value={digit}
+                                            onChange={(e) => handleOtpChange(i, e.target.value)}
+                                            onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                                            className="otp-input"
+                                            maxLength={1}
+                                        />
+                                    ))}
+                                </div>
 
-                                        <button
-                                            type="submit"
-                                            disabled={phone.length < 10}
-                                            className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-emerald-500 disabled:shadow-none"
-                                        >
-                                            Send OTP
-                                            <ArrowRight size={18} />
-                                        </button>
-                                    </form>
-                                ) : (
-                                    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                                        <div className="text-center space-y-2">
-                                            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 mb-2">
-                                                <Fingerprint size={24} />
-                                            </div>
-                                            <h3 className="text-lg font-medium text-slate-800">Verify your number</h3>
-                                            <p className="text-sm text-slate-500">
-                                                We sent a code to <span className="text-slate-800 font-medium">+91 {phone}</span>
-                                            </p>
-                                            <button
-                                                type="button"
-                                                onClick={() => { setOtpSent(false); setOtp(['', '', '', '']); }}
-                                                className="text-xs text-emerald-600 hover:text-emerald-500 p-1 font-medium"
-                                            >
-                                                Change number
-                                            </button>
-                                        </div>
+                                <button
+                                    type="button"
+                                    onClick={handleResendOtp}
+                                    disabled={countdown > 0}
+                                    className="resend-btn"
+                                >
+                                    {countdown > 0
+                                        ? `Resend in 00:${countdown.toString().padStart(2, '0')}`
+                                        : 'Didn\'t receive code? Resend'}
+                                </button>
 
-                                        <div className="flex justify-center gap-3">
-                                            {otp.map((digit, i) => (
-                                                <input
-                                                    key={i}
-                                                    id={`otp-input-${i}`}
-                                                    type="text"
-                                                    inputMode="numeric"
-                                                    value={digit}
-                                                    onChange={(e) => handleOtpChange(i, e.target.value)}
-                                                    onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                                                    className="w-14 h-14 text-center text-xl font-bold bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-slate-800 transition-all outline-none shadow-sm"
-                                                    maxLength={1}
-                                                />
-                                            ))}
-                                        </div>
-
-                                        <div className="text-center mt-4 space-y-6">
-                                            <button
-                                                type="button"
-                                                onClick={handleResendOtp}
-                                                disabled={countdown > 0}
-                                                className="text-sm text-slate-500 hover:text-slate-700 transition-colors disabled:opacity-50 disabled:hover:text-slate-500 font-medium"
-                                            >
-                                                {countdown > 0
-                                                    ? `Resend in 00:${countdown.toString().padStart(2, '0')}`
-                                                    : 'Didn\'t receive code? Resend'}
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                onClick={() => navigate('/home')}
-                                                disabled={otp.join('').length < 4}
-                                                className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
-                                            >
-                                                <ShieldCheck size={18} />
-                                                Verify & Proceed
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
+                                <button
+                                    type="button"
+                                    onClick={handleVerifyOtp}
+                                    disabled={otp.join('').length < 4}
+                                    className="auth-submit-btn"
+                                >
+                                    <ShieldCheck size={18} />
+                                    Verify & Proceed
+                                </button>
                             </div>
                         )}
                     </div>
-
                 </div>
 
-                <div className="mt-8 text-center text-xs text-slate-500">
-                    By continuing, you agree to our <a href="#" className="text-slate-600 hover:text-slate-800 underline underline-offset-2">Terms of Service</a> and <a href="#" className="text-slate-600 hover:text-slate-800 underline underline-offset-2">Privacy Policy</a>.
+                <div className="auth-footer">
+                    By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
                 </div>
 
             </div>
