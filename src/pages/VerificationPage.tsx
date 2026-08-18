@@ -100,7 +100,7 @@ const VerificationPage = () => {
     // Continue Navigation
     const handleContinue = () => {
         if (isEmailVerified && isPhoneVerified) {
-            navigate('/home');
+            navigate('/kyc');
         }
     };
 

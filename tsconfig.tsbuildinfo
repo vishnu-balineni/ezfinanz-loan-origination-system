@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/pages/authpage.tsx","./src/pages/homepage.tsx","./src/routes/approutes.tsx","./src/services/api.ts","./src/types/index.ts","./src/utils/formatters.ts"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/main.tsx","./src/pages/authpage.tsx","./src/pages/homepage.tsx","./src/pages/kycpage.tsx","./src/pages/verificationpage.tsx","./src/routes/approutes.tsx","./src/services/api.ts","./src/types/index.ts","./src/utils/formatters.ts"],"version":"5.9.3"}

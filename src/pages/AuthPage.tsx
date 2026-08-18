@@ -122,7 +122,7 @@ const AuthPage = () => {
         // Here we mock verifying the OTP with the backend API
         if (otp.join('').length === 4) {
             alert("Verification successful!");
-            navigate('/home');
+            navigate('/verify');
         }
     };
 
