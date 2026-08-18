@@ -1,0 +1,116 @@
+.stepper-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
+    width: 100%;
+}
+
+/* Background line */
+.stepper-line-bg {
+    position: absolute;
+    top: 1rem;
+    /* Aligns visually with the center of the 2rem (32px) step-nodes */
+    left: 2rem;
+    right: 2rem;
+    height: 4px;
+    background-color: #e2e8f0;
+    z-index: 1;
+    border-radius: 2px;
+}
+
+/* Progress filling line */
+.stepper-line-progress {
+    position: absolute;
+    top: 1rem;
+    left: 2rem;
+    max-width: calc(100% - 4rem);
+    height: 4px;
+    background-color: #10b981;
+    z-index: 2;
+    border-radius: 2px;
+    transition: width 0.5s ease-in-out;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 3;
+    gap: 0.5rem;
+    width: 4rem;
+    /* Defines constraints so long text wraps uniformly */
+}
+
+.step-node {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    transition: all 0.5s ease-in-out;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    transition: color 0.5s ease-in-out;
+}
+
+/* Completed Step */
+.step-completed .step-node {
+    background-color: #10b981;
+    /* Emerald */
+    color: white;
+}
+
+.step-completed .step-label {
+    color: #10b981;
+}
+
+/* Current Step */
+.step-current .step-node {
+    background-color: #6366f1;
+    /* Indigo */
+    color: white;
+    /* Outer pulsing ring */
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.step-current .step-label {
+    color: #6366f1;
+}
+
+/* Pending Future Step */
+.step-pending .step-node {
+    background-color: white;
+    border: 2px solid #cbd5e1;
+    /* Slate Grey */
+    color: #94a3b8;
+}
+
+.step-pending .step-label {
+    color: #94a3b8;
+}
+
+/* Pulse animation mimicking tailwind's animate-pulse strictly via box shadow */
+@keyframes pulse-ring {
+    0% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(99, 102, 241, 0.1);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+    }
+}

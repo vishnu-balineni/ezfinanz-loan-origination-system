@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { Stepper } from '../components/Stepper';
 import './KycPage.css';
 
 const KycPage = () => {
@@ -52,7 +53,7 @@ const KycPage = () => {
             <div className="kyc-card">
 
                 <div className="progress-header">
-                    <div className="progress-text">Step 2 of 5</div>
+                    <Stepper currentStep={2} />
                     <h1 className="progress-title">KYC Details</h1>
                 </div>
 

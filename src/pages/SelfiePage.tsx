@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, RefreshCcw, CheckCircle2, ShieldAlert, Sparkles } from 'lucide-react';
+import { Stepper } from '../components/Stepper';
 import './SelfiePage.css';
 
 const SelfiePage = () => {
@@ -111,7 +112,7 @@ const SelfiePage = () => {
             <div className="selfie-card">
 
                 <div className="progress-header">
-                    <div className="progress-text">Step 5 of 5</div>
+                    <Stepper currentStep={5} />
                     <h1 className="progress-title">Identity Verification</h1>
                 </div>
 

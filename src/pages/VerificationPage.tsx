@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Phone, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
+import { Stepper } from '../components/Stepper';
 import './VerificationPage.css';
 
 const VerificationPage = () => {
@@ -109,7 +110,7 @@ const VerificationPage = () => {
             <div className="verify-card">
 
                 <div className="progress-header">
-                    <div className="progress-text">Step 1 of 5</div>
+                    <Stepper currentStep={1} />
                     <h1 className="progress-title">Verification</h1>
                 </div>
 

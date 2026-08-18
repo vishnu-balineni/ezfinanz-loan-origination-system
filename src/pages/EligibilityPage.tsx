@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IndianRupee, ShieldAlert, CheckCircle2, Calculator, ArrowRight, RotateCcw } from 'lucide-react';
+import { ShieldAlert, CheckCircle2, Calculator, ArrowRight, RotateCcw } from 'lucide-react';
+import { Stepper } from '../components/Stepper';
 import './EligibilityPage.css';
 
 type ViewState = 'checking' | 'eligible' | 'rejected';
@@ -94,7 +95,7 @@ const EligibilityPage = () => {
             <div className="eligibility-card">
 
                 <div className="progress-header">
-                    <div className="progress-text">Step 3 of 5</div>
+                    <Stepper currentStep={3} />
                     <h1 className="progress-title">Loan Eligibility</h1>
                 </div>
 
