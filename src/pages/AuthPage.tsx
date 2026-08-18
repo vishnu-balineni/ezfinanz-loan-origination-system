@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Mail, Phone, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck, Fingerprint, Sparkles } from 'lucide-react';
 
 const AuthPage = () => {
@@ -24,10 +24,10 @@ const AuthPage = () => {
     const strengthScore = [hasMinLength, hasNumber, hasSpecialChar].filter(Boolean).length;
 
     const getStrengthColor = () => {
-        if (strengthScore === 0) return 'bg-gray-700';
-        if (strengthScore === 1) return 'bg-red-500';
-        if (strengthScore === 2) return 'bg-yellow-500';
-        return 'bg-emerald-500';
+        if (strengthScore === 0) return 'bg-gray-200';
+        if (strengthScore === 1) return 'bg-red-400';
+        if (strengthScore === 2) return 'bg-yellow-400';
+        return 'bg-brand-green';
     };
 
     const getStrengthText = () => {
@@ -86,70 +86,71 @@ const AuthPage = () => {
     };
 
     const renderPasswordRules = () => (
-        <div className="mt-4 space-y-2 text-sm text-gray-400">
+        <div className="mt-4 space-y-2 text-sm text-brand-textMuted">
             <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">Password strength</span>
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${strengthScore === 3 ? 'bg-emerald-500/20 text-emerald-400' : strengthScore === 2 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'}`}>
+                <span className="font-medium text-brand-text">Password strength</span>
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${strengthScore === 3 ? 'bg-brand-greenLight text-brand-greenHover' : strengthScore === 2 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
                     {getStrengthText()}
                 </span>
             </div>
-            <div className="flex gap-1 mb-4 h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
+            <div className="flex gap-1 mb-4 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
                 <div className={`h-full transition-all duration-300 ${strengthScore >= 1 ? getStrengthColor() : 'bg-transparent'} ${strengthScore === 1 ? 'w-1/3' : strengthScore === 2 ? 'w-2/3' : strengthScore === 3 ? 'w-full' : 'w-0'}`} />
             </div>
-            <div className="flex items-center gap-2 transition-colors duration-300" style={{ color: hasMinLength ? '#34d399' : 'inherit' }}>
-                <CheckCircle2 size={16} className={hasMinLength ? 'text-emerald-400' : 'text-gray-600'} />
+            <div className="flex items-center gap-2 transition-colors duration-300" style={{ color: hasMinLength ? '#14BA73' : 'inherit' }}>
+                <CheckCircle2 size={16} className={hasMinLength ? 'text-brand-green' : 'text-gray-300'} />
                 <span>At least 8 characters</span>
             </div>
-            <div className="flex items-center gap-2 transition-colors duration-300" style={{ color: hasNumber ? '#34d399' : 'inherit' }}>
-                <CheckCircle2 size={16} className={hasNumber ? 'text-emerald-400' : 'text-gray-600'} />
+            <div className="flex items-center gap-2 transition-colors duration-300" style={{ color: hasNumber ? '#14BA73' : 'inherit' }}>
+                <CheckCircle2 size={16} className={hasNumber ? 'text-brand-green' : 'text-gray-300'} />
                 <span>Contains at least one number</span>
             </div>
-            <div className="flex items-center gap-2 transition-colors duration-300" style={{ color: hasSpecialChar ? '#34d399' : 'inherit' }}>
-                <CheckCircle2 size={16} className={hasSpecialChar ? 'text-emerald-400' : 'text-gray-600'} />
+            <div className="flex items-center gap-2 transition-colors duration-300" style={{ color: hasSpecialChar ? '#14BA73' : 'inherit' }}>
+                <CheckCircle2 size={16} className={hasSpecialChar ? 'text-brand-green' : 'text-gray-300'} />
                 <span>Contains at least one special character</span>
             </div>
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 sm:p-8 font-sans text-gray-100 relative overflow-hidden">
+        <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4 sm:p-8 font-sans text-brand-text relative overflow-hidden">
 
-            {/* Background ambient glows */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-teal-600/20 blur-[120px] pointer-events-none" />
+            {/* Background elements derived from the brand colors */}
+            <div className="absolute top-[0%] left-[0%] w-full h-[300px] bg-brand-dark flex items-center justify-center overflow-hidden">
+                <div className="absolute top-[-50%] left-[-10%] w-[50%] h-[200%] rounded-full bg-brand-green/5 blur-[120px] pointer-events-none" />
+            </div>
 
-            <div className="w-full max-w-md relative z-10">
+            <div className="w-full max-w-md relative z-10 mt-16 sm:mt-0">
 
                 {/* Brand Header */}
                 <div className="text-center mb-8 flex flex-col items-center">
-                    <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-teal-400 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/25">
-                        <Sparkles className="text-white" size={28} />
+                    <div className="w-16 h-16 bg-brand-sidebar rounded-2xl flex items-center justify-center mb-6 shadow-lg border border-brand-green/20">
+                        <Sparkles className="text-brand-green" size={32} />
                     </div>
-                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                    <h1 className="text-3xl font-bold text-white sm:text-brand-dark">
                         EZFINANZ LOS
                     </h1>
-                    <p className="text-gray-400 mt-2">The next generation loan platform.</p>
+                    <p className="text-brand-greenLight/70 sm:text-brand-textMuted mt-2">The next generation loan platform.</p>
                 </div>
 
                 {/* Card Container */}
-                <div className="backdrop-blur-xl bg-white/5 border border-white/10 p-8 rounded-3xl shadow-2xl transition-all">
+                <div className="bg-white border border-gray-100 p-8 rounded-2xl shadow-xl shadow-brand-dark/5 transition-all">
 
                     {/* Main Toggle (Login vs Signup) */}
-                    <div className="flex bg-gray-900/50 p-1 rounded-2xl mb-8 border border-white/5">
+                    <div className="flex bg-brand-bg p-1 rounded-xl mb-8 border border-gray-100">
                         <button
                             onClick={() => setIsLogin(true)}
-                            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${isLogin
-                                    ? 'bg-white/10 text-white shadow-sm border border-white/10'
-                                    : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                            className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${isLogin
+                                ? 'bg-white text-brand-sidebar shadow flex items-center justify-center'
+                                : 'text-brand-textMuted hover:text-brand-text'
                                 }`}
                         >
                             Log In
                         </button>
                         <button
                             onClick={() => setIsLogin(false)}
-                            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${!isLogin
-                                    ? 'bg-white/10 text-white shadow-sm border border-white/10'
-                                    : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                            className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${!isLogin
+                                ? 'bg-white text-brand-sidebar shadow flex items-center justify-center'
+                                : 'text-brand-textMuted hover:text-brand-text'
                                 }`}
                         >
                             Sign Up
@@ -157,10 +158,10 @@ const AuthPage = () => {
                     </div>
 
                     <div className="mb-8">
-                        <h2 className="text-2xl font-semibold mb-1">
+                        <h2 className="text-2xl font-bold mb-1 text-brand-dark">
                             {isLogin ? 'Welcome back' : 'Create an account'}
                         </h2>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-brand-textMuted">
                             {isLogin
                                 ? 'Enter your details to access your dashboard.'
                                 : 'Sign up to start your loan application process.'}
@@ -171,22 +172,22 @@ const AuthPage = () => {
                     <div className="flex gap-4 mb-8">
                         <button
                             onClick={() => { setMethod('email'); setOtpSent(false); }}
-                            className={`flex items-center justify-center gap-2 flex-1 pb-3 text-sm font-medium border-b-2 transition-colors ${method === 'email'
-                                    ? 'border-indigo-400 text-indigo-400'
-                                    : 'border-transparent text-gray-500 hover:text-gray-300'
+                            className={`flex items-center justify-center gap-2 flex-1 pb-3 text-sm font-semibold border-b-[3px] transition-colors ${method === 'email'
+                                ? 'border-brand-green text-brand-sidebar'
+                                : 'border-transparent text-brand-textMuted hover:text-brand-sidebar'
                                 }`}
                         >
-                            <Mail size={16} />
+                            <Mail size={18} />
                             Email
                         </button>
                         <button
                             onClick={() => setMethod('phone')}
-                            className={`flex items-center justify-center gap-2 flex-1 pb-3 text-sm font-medium border-b-2 transition-colors ${method === 'phone'
-                                    ? 'border-indigo-400 text-indigo-400'
-                                    : 'border-transparent text-gray-500 hover:text-gray-300'
+                            className={`flex items-center justify-center gap-2 flex-1 pb-3 text-sm font-semibold border-b-[3px] transition-colors ${method === 'phone'
+                                ? 'border-brand-green text-brand-sidebar'
+                                : 'border-transparent text-brand-textMuted hover:text-brand-sidebar'
                                 }`}
                         >
-                            <Phone size={16} />
+                            <Phone size={18} />
                             Phone Number
                         </button>
                     </div>
@@ -197,10 +198,10 @@ const AuthPage = () => {
                         {method === 'email' && (
                             <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-gray-300 ml-1">Email Address</label>
+                                    <label className="text-sm font-semibold text-brand-sidebar ml-1">Email Address</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <Mail className="h-5 w-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
+                                            <Mail className="h-5 w-5 text-gray-400 group-focus-within:text-brand-green transition-colors" />
                                         </div>
                                         <input
                                             type="email"
@@ -208,16 +209,16 @@ const AuthPage = () => {
                                             placeholder="you@example.com"
                                             value={email}
                                             onChange={e => setEmail(e.target.value)}
-                                            className="w-full pl-11 pr-4 py-3 bg-gray-900/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 text-white placeholder-gray-600 transition-all outline-none"
+                                            className="w-full pl-11 pr-4 py-3 bg-brand-bg border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-brand-sidebar placeholder-gray-400 transition-all outline-none"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
+                                    <label className="text-sm font-semibold text-brand-sidebar ml-1">Password</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <Lock className="h-5 w-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
+                                            <Lock className="h-5 w-5 text-gray-400 group-focus-within:text-brand-green transition-colors" />
                                         </div>
                                         <input
                                             type={showPassword ? 'text' : 'password'}
@@ -225,14 +226,14 @@ const AuthPage = () => {
                                             value={password}
                                             onChange={e => setPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="w-full pl-11 pr-11 py-3 bg-gray-900/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 text-white placeholder-gray-600 transition-all outline-none"
+                                            className="w-full pl-11 pr-11 py-3 bg-brand-bg border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-brand-sidebar placeholder-gray-400 transition-all outline-none"
                                         />
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
+                                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-brand-sidebar transition-colors"
                                         >
-                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                         </button>
                                     </div>
                                 </div>
@@ -242,7 +243,7 @@ const AuthPage = () => {
 
                                 {isLogin && (
                                     <div className="flex justify-end">
-                                        <button type="button" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
+                                        <button type="button" className="text-sm font-medium text-brand-greenHover hover:text-brand-sidebar transition-colors">
                                             Forgot password?
                                         </button>
                                     </div>
@@ -250,7 +251,7 @@ const AuthPage = () => {
 
                                 <button
                                     type="submit"
-                                    className="w-full mt-6 py-3.5 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 text-white font-medium rounded-xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                                    className="w-full mt-8 py-3.5 bg-brand-green hover:bg-brand-greenHover text-white font-semibold rounded-xl shadow-[0_8px_20px_-8px_rgba(20,186,115,0.6)] flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                                 >
                                     {isLogin ? 'Sign In' : 'Create Account'}
                                     <ArrowRight size={18} />
@@ -263,10 +264,10 @@ const AuthPage = () => {
                                 {!otpSent ? (
                                     <form onSubmit={handleSendOtp} className="space-y-6">
                                         <div className="space-y-1.5">
-                                            <label className="text-sm font-medium text-gray-300 ml-1">Phone Number</label>
+                                            <label className="text-sm font-semibold text-brand-sidebar ml-1">Phone Number</label>
                                             <div className="relative group">
                                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                                    <Phone className="h-5 w-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
+                                                    <Phone className="h-5 w-5 text-gray-400 group-focus-within:text-brand-green transition-colors" />
                                                 </div>
                                                 <input
                                                     type="tel"
@@ -277,7 +278,7 @@ const AuthPage = () => {
                                                         if (val.length <= 10) setPhone(val);
                                                     }}
                                                     placeholder="Enter 10-digit number"
-                                                    className="w-full pl-11 pr-4 py-3 bg-gray-900/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 text-white placeholder-gray-600 transition-all outline-none"
+                                                    className="w-full pl-11 pr-4 py-3 bg-brand-bg border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-brand-sidebar placeholder-gray-400 transition-all outline-none"
                                                 />
                                             </div>
                                         </div>
@@ -285,7 +286,7 @@ const AuthPage = () => {
                                         <button
                                             type="submit"
                                             disabled={phone.length < 10}
-                                            className="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 text-white font-medium rounded-xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-indigo-500 disabled:shadow-none"
+                                            className="w-full py-3.5 bg-brand-green hover:bg-brand-greenHover text-white font-semibold rounded-xl shadow-[0_8px_20px_-8px_rgba(20,186,115,0.6)] flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-green disabled:shadow-none"
                                         >
                                             Send OTP
                                             <ArrowRight size={18} />
@@ -294,17 +295,17 @@ const AuthPage = () => {
                                 ) : (
                                     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                                         <div className="text-center space-y-2">
-                                            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-500/10 text-indigo-400 mb-2">
-                                                <Fingerprint size={24} />
+                                            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-brand-greenLight text-brand-green mb-2">
+                                                <Fingerprint size={28} />
                                             </div>
-                                            <h3 className="text-lg font-medium">Verify your number</h3>
-                                            <p className="text-sm text-gray-400">
-                                                We sent a code to <span className="text-white">+91 {phone}</span>
+                                            <h3 className="text-xl font-bold text-brand-dark">Verify your number</h3>
+                                            <p className="text-sm text-brand-textMuted">
+                                                We sent a code to <span className="text-brand-sidebar font-semibold">+91 {phone}</span>
                                             </p>
                                             <button
                                                 type="button"
                                                 onClick={() => { setOtpSent(false); setOtp(['', '', '', '']); }}
-                                                className="text-xs text-indigo-400 hover:text-indigo-300 p-1"
+                                                className="text-xs text-brand-greenHover hover:text-brand-sidebar p-1 font-semibold"
                                             >
                                                 Change number
                                             </button>
@@ -320,18 +321,18 @@ const AuthPage = () => {
                                                     value={digit}
                                                     onChange={(e) => handleOtpChange(i, e.target.value)}
                                                     onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                                                    className="w-14 h-14 text-center text-xl font-bold bg-gray-900/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 text-white transition-all outline-none"
+                                                    className="w-14 h-14 text-center text-2xl font-bold bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-brand-sidebar transition-all outline-none shadow-sm"
                                                     maxLength={1}
                                                 />
                                             ))}
                                         </div>
 
-                                        <div className="text-center mt-4 space-y-6">
+                                        <div className="text-center mt-6 space-y-6">
                                             <button
                                                 type="button"
                                                 onClick={handleResendOtp}
                                                 disabled={countdown > 0}
-                                                className="text-sm text-gray-400 hover:text-white transition-colors disabled:opacity-50 disabled:hover:text-gray-400"
+                                                className="text-sm text-brand-textMuted hover:text-brand-sidebar transition-colors disabled:opacity-50 disabled:hover:text-brand-textMuted font-medium"
                                             >
                                                 {countdown > 0
                                                     ? `Resend in 00:${countdown.toString().padStart(2, '0')}`
@@ -341,7 +342,7 @@ const AuthPage = () => {
                                             <button
                                                 type="button"
                                                 disabled={otp.join('').length < 4}
-                                                className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                                                className="w-full py-3.5 bg-brand-green hover:bg-brand-greenHover text-white font-semibold rounded-xl shadow-[0_8px_20px_-8px_rgba(20,186,115,0.6)] flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                                             >
                                                 <ShieldCheck size={18} />
                                                 Verify & Proceed
@@ -355,8 +356,8 @@ const AuthPage = () => {
 
                 </div>
 
-                <div className="mt-8 text-center text-xs text-gray-500">
-                    By continuing, you agree to our <a href="#" className="text-gray-400 hover:text-white underline underline-offset-2">Terms of Service</a> and <a href="#" className="text-gray-400 hover:text-white underline underline-offset-2">Privacy Policy</a>.
+                <div className="mt-8 text-center text-sm font-medium text-brand-textMuted/70">
+                    By continuing, you agree to our <a href="#" className="text-brand-sidebar hover:text-brand-greenHover underline underline-offset-4">Terms</a> and <a href="#" className="text-brand-sidebar hover:text-brand-greenHover underline underline-offset-4">Policy</a>.
                 </div>
 
             </div>
