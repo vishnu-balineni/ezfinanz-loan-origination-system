@@ -6,11 +6,11 @@
     font-family: 'Inter', sans-serif;
 }
 
-/* Dark Mode Sidebar for Admins */
+/* Directly matching CustomerLayout.css styling for Admin */
 .admin-sidebar {
     width: 260px;
-    background-color: #0f172a;
-    /* Very dark slate */
+    background-color: #0b1727;
+    /* Matched Customer Navy */
     display: flex;
     flex-direction: column;
     z-index: 40;
@@ -33,15 +33,13 @@
 }
 
 .admin-logo {
-    width: 2.5rem;
-    height: 2.5rem;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    /* Admin Blue Accent */
-    border-radius: 0.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #17a966;
+    /* Matched Customer Emerald */
 }
 
 .admin-brand-name {
@@ -52,8 +50,8 @@
 }
 
 .admin-badge {
-    background: #1e293b;
-    color: #60a5fa;
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
     padding: 0.2rem 0.5rem;
     border-radius: 0.25rem;
     font-size: 0.65rem;
@@ -70,10 +68,11 @@
 }
 
 .admin-nav-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #64748b;
+    color: #4b627d;
+    /* Matched Customer */
     margin: 1rem 0 0.5rem 1rem;
     font-weight: 700;
 }
@@ -83,8 +82,10 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    color: #94a3b8;
+    border-radius: 9999px;
+    /* Pill shape */
+    color: #8397af;
+    /* Matched Customer inactive text */
     font-weight: 600;
     text-decoration: none;
     font-size: 0.9rem;
@@ -93,12 +94,13 @@
 
 .admin-link:hover {
     background-color: rgba(255, 255, 255, 0.05);
+    /* Matched Customer hover */
     color: white;
 }
 
 .admin-link.active {
-    background-color: #3b82f6;
-    /* Blue Admin Active State */
+    background-color: #17a966;
+    /* Matched Customer Emerald */
     color: white;
 }
 
@@ -119,19 +121,17 @@
     gap: 0.75rem;
     width: 100%;
     padding: 0.75rem;
-    background: #1e293b;
-    border: 1px solid #334155;
-    color: #f87171;
-    border-radius: 0.5rem;
+    background: transparent;
+    border: none;
+    color: #8397af;
+    border-radius: 9999px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .admin-logout-btn:hover {
-    background: #7f1d1d;
-    color: white;
-    border-color: #991b1b;
+    color: #ef4444;
 }
 
 /* Main Content Wrapper */
