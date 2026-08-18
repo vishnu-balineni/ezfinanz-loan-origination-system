@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, RefreshCcw, CheckCircle2, ShieldAlert, Sparkles } from 'lucide-react';
 import { Stepper } from '../components/Stepper';
@@ -88,7 +88,7 @@ const SelfiePage = () => {
     };
 
     const returnToDashboard = () => {
-        navigate('/home');
+        navigate('/dashboard');
     };
 
     // If completely submitted, overtake screen with Success State

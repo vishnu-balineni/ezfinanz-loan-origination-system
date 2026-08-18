@@ -1,0 +1,231 @@
+/* Profile Pages Custom Styles mapped to OrbixHR reference */
+
+.profile-page-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 1200px;
+}
+
+/* Header Dark Card */
+.profile-header-card {
+    background-color: #0b1727;
+    border-radius: 1rem;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.profile-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.header-avatar-box {
+    width: 90px;
+    height: 90px;
+    background-color: #f1f5f9;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.header-avatar-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.header-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.header-user-name {
+    color: white;
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.edit-icon-chip {
+    background: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.header-user-role {
+    color: #17a966;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* Two Column Grid */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+    .profile-grid {
+        grid-template-columns: 3fr 2fr;
+    }
+}
+
+/* Cards */
+.info-card.light {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.info-card.dark {
+    background: #0b1727;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.light h3 {
+    color: #0b1727;
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.dark h3 {
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.edit-btn {
+    background: #f1f5f9;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #0b1727;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.detail-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.detail-block.light label {
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.detail-block.light span {
+    color: #0b1727;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.detail-block.dark label {
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.detail-block.dark span {
+    color: #17a966;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.password-box {
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.password-box:hover {
+    background: #f1f5f9;
+}
+
+.pwd-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pwd-icon {
+    color: #17a966;
+}
+
+.pwd-text h4 {
+    margin: 0 0 0.25rem 0;
+    color: #0b1727;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.pwd-text p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.75rem;
+}
+
+.bottom-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.bottom-card h3 {
+    color: #0b1727;
+    font-size: 1.125rem;
+    font-weight: 800;
+    margin: 0 0 1.5rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 1rem;
+}

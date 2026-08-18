@@ -1,23 +1,42 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+// Core Flow Imports
 import AuthPage from './pages/AuthPage';
-import HomePage from './pages/HomePage';
 import VerificationPage from './pages/VerificationPage';
 import KycPage from './pages/KycPage';
 import EligibilityPage from './pages/EligibilityPage';
 import BankDetailsPage from './pages/BankDetailsPage';
 import SelfiePage from './pages/SelfiePage';
 
+// Portal Phase 10.5 Imports
+import CustomerLayout from './components/layout/CustomerLayout';
+import DashboardHome from './pages/portal/DashboardHome';
+import MyProfile from './pages/portal/MyProfile';
+import Documents from './pages/portal/Documents';
+
 function App() {
     return (
         <Router>
             <Routes>
+                {/* Core Onboarding Routes */}
                 <Route path="/" element={<AuthPage />} />
                 <Route path="/verify" element={<VerificationPage />} />
                 <Route path="/kyc" element={<KycPage />} />
                 <Route path="/eligibility" element={<EligibilityPage />} />
                 <Route path="/bank" element={<BankDetailsPage />} />
                 <Route path="/selfie" element={<SelfiePage />} />
-                <Route path="/home" element={<HomePage />} />
+
+                {/* User Dashboard Application Routes */}
+                <Route path="/dashboard" element={<CustomerLayout />}>
+                    <Route index element={<DashboardHome />} />
+                    <Route path="profile" element={<MyProfile />} />
+                    <Route path="documents" element={<Documents />} />
+                </Route>
+
+                {/* Legacy redirect bridges handling UX flows seamlessly */}
+                <Route path="/home" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/portal" element={<Navigate to="/dashboard" replace />} />
+
                 {/* Fallback route */}
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
