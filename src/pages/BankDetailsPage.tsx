@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Banknote, Loader2, CheckCircle2, FileText, ArrowRight } from 'lucide-react';
 import { Stepper } from '../components/Stepper';
+import TrustFooter from '../components/shared/TrustFooter';
 import './BankDetailsPage.css';
 
 const BankDetailsPage = () => {
@@ -183,6 +184,7 @@ const BankDetailsPage = () => {
                 )}
 
             </div>
+            <TrustFooter />
         </div>
     );
 };

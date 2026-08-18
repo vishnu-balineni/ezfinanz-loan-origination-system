@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Stepper } from '../components/Stepper';
+import TrustFooter from '../components/shared/TrustFooter';
 import './KycPage.css';
 
 const KycPage = () => {
@@ -165,6 +166,7 @@ const KycPage = () => {
                     </button>
                 </form>
             </div>
+            <TrustFooter />
         </div>
     );
 };

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, RefreshCcw, CheckCircle2, ShieldAlert, Sparkles } from 'lucide-react';
 import { Stepper } from '../components/Stepper';
+import TrustFooter from '../components/shared/TrustFooter';
 import './SelfiePage.css';
 
 const SelfiePage = () => {
@@ -181,6 +182,7 @@ const SelfiePage = () => {
                     </div>
                 )}
             </div>
+            <TrustFooter />
         </div>
     );
 };

@@ -106,6 +106,19 @@ const EligibilityPage = () => {
         };
     }, [loanAmount, tenure]);
 
+    // Smart Offers Handlers
+    const selectOffer = (amount: number, months: number) => {
+        setLoanAmount(amount);
+        setTenure(months);
+    };
+
+    // Derived quick EMI calculations for static smart cards
+    const calcEmiFor = (amount: number, months: number) => {
+        const r = 12 / 12 / 100;
+        const emi = (amount * r * Math.pow(1 + r, months)) / (Math.pow(1 + r, months) - 1);
+        return formatCurrency(Math.round(emi));
+    };
+
     return (
         <div className="eligibility-page-container">
             <div className="eligibility-card">
@@ -224,10 +237,42 @@ const EligibilityPage = () => {
                     <div className="animate-fade-in">
                         <div className="status-msg status-success">
                             <CheckCircle2 size={40} />
-                            <h3>Congratulations! You are officially eligible for an EZFINANZ loan.</h3>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Congratulations! You are officially eligible for an EZFINANZ loan.</h3>
+                                <p style={{ margin: '0.25rem 0 0 0', opacity: 0.9 }}>You have been pre-approved based on your initial profile. Customize your loan details below.</p>
+                            </div>
                         </div>
 
-                        <div className="calculator-section">
+                        {/* SMART OFFERS TIER (Phase 10.8) */}
+                        <div className="smart-offers-container animate-fade-in">
+                            <div className="smart-offers-title">
+                                <CheckCircle2 size={18} color="#16a34a" /> Recommended For You
+                            </div>
+                            <div className="smart-offers-grid">
+
+                                <div className="offer-card" onClick={() => selectOffer(50000, 6)}>
+                                    <div className="offer-name">Quick Payoff</div>
+                                    <div className="offer-emi">{calcEmiFor(50000, 6)}<span>/mo</span></div>
+                                    <div className="offer-details">₹50,000 for 6 Months</div>
+                                </div>
+
+                                <div className="offer-card popular" onClick={() => selectOffer(200000, 12)}>
+                                    <div className="offer-badge">Most Popular</div>
+                                    <div className="offer-name">Balanced</div>
+                                    <div className="offer-emi">{calcEmiFor(200000, 12)}<span>/mo</span></div>
+                                    <div className="offer-details">₹2,00,000 for 12 Months</div>
+                                </div>
+
+                                <div className="offer-card" onClick={() => selectOffer(500000, 36)}>
+                                    <div className="offer-name">Low Burden</div>
+                                    <div className="offer-emi">{calcEmiFor(500000, 36)}<span>/mo</span></div>
+                                    <div className="offer-details">₹5,00,000 for 36 Months</div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div className="calculator-card animate-slide-up">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', color: '#1e293b', fontWeight: 'bold' }}>
                                 <Calculator size={20} />
                                 <h2>Customize Your Loan</h2>
