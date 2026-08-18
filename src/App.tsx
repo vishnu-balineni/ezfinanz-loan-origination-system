@@ -10,6 +10,7 @@ import ApplyLoan from './pages/portal/ApplyLoan';
 import VerificationFlow from './pages/portal/VerificationFlow';
 import MyProfile from './pages/portal/MyProfile';
 import Documents from './pages/portal/Documents';
+import LoanHistory from './pages/portal/LoanHistory';
 
 // Admin Portal Imports
 import AdminLayout from './components/layout/AdminLayout';
@@ -33,6 +34,7 @@ function App() {
                     <Route path="verify" element={<VerificationFlow />} />
                     <Route path="profile" element={<MyProfile />} />
                     <Route path="documents" element={<Documents />} />
+                    <Route path="history" element={<LoanHistory />} />
                 </Route>
 
                 {/* Admin Portal Routes */}

@@ -7,7 +7,8 @@ import {
     LogOut,
     Target,
     ShieldCheck,
-    PlusCircle
+    PlusCircle,
+    History
 } from 'lucide-react';
 import './CustomerLayout.css';
 
@@ -65,6 +66,14 @@ const CustomerLayout = () => {
                         >
                             <FileText size={18} />
                             Documents
+                        </NavLink>
+
+                        <NavLink
+                            to="/dashboard/history"
+                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                        >
+                            <History size={18} />
+                            Loan History
                         </NavLink>
 
                         <button className="sidebar-link" style={{ border: 'none', background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => alert('Support module initiated.')}>
