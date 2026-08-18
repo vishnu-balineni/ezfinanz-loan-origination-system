@@ -65,8 +65,7 @@ const EligibilityPage = () => {
 
     const handleProceed = () => {
         // Proceed to Phase 7 (Bank Details etc)
-        // Here we mock navigation to home for now, can be updated later
-        navigate('/home');
+        navigate('/bank');
     };
 
     // Calculate EMI Mathematics

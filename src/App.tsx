@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage';
 import VerificationPage from './pages/VerificationPage';
 import KycPage from './pages/KycPage';
 import EligibilityPage from './pages/EligibilityPage';
+import BankDetailsPage from './pages/BankDetailsPage';
 
 function App() {
     return (
@@ -13,6 +14,7 @@ function App() {
                 <Route path="/verify" element={<VerificationPage />} />
                 <Route path="/kyc" element={<KycPage />} />
                 <Route path="/eligibility" element={<EligibilityPage />} />
+                <Route path="/bank" element={<BankDetailsPage />} />
                 <Route path="/home" element={<HomePage />} />
                 {/* Fallback route */}
                 <Route path="*" element={<Navigate to="/" replace />} />
