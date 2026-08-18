@@ -14,6 +14,11 @@ import DashboardHome from './pages/portal/DashboardHome';
 import MyProfile from './pages/portal/MyProfile';
 import Documents from './pages/portal/Documents';
 
+// Admin Portal Imports
+import AdminLayout from './components/layout/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ApplicationReview from './pages/admin/ApplicationReview';
+
 function App() {
     return (
         <Router>
@@ -31,6 +36,13 @@ function App() {
                     <Route index element={<DashboardHome />} />
                     <Route path="profile" element={<MyProfile />} />
                     <Route path="documents" element={<Documents />} />
+                </Route>
+
+                {/* Admin Portal Routes */}
+                <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="review/:id" element={<ApplicationReview />} />
                 </Route>
 
                 {/* Legacy redirect bridges handling UX flows seamlessly */}
