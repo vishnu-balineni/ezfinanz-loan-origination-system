@@ -4,7 +4,8 @@ import {
     FileSearch,
     Banknote,
     LogOut,
-    ShieldCheck
+    ShieldCheck,
+    Briefcase
 } from 'lucide-react';
 import './AdminLayout.css';
 
@@ -52,7 +53,16 @@ const AdminLayout = () => {
                     </div>
 
                     <div className="admin-nav-group">
-                        <div className="admin-nav-label">Finance</div>
+                        <div className="admin-nav-label">Finance & Portfolio</div>
+
+                        <NavLink
+                            to="/admin/active-loans"
+                            className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
+                        >
+                            <Briefcase size={18} />
+                            Active Loans
+                        </NavLink>
+
                         <NavLink
                             to="/admin/disbursements"
                             className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}

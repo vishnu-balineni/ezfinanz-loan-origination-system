@@ -18,6 +18,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ApplicationReview from './pages/admin/ApplicationReview';
 import AdminPending from './pages/admin/AdminPending';
 import AdminDisbursements from './pages/admin/AdminDisbursements';
+import AdminActiveLoans from './pages/admin/AdminActiveLoans';
 import AdminProfile from './pages/admin/AdminProfile';
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="pending" element={<AdminPending />} />
                     <Route path="disbursements" element={<AdminDisbursements />} />
+                    <Route path="active-loans" element={<AdminActiveLoans />} />
                     <Route path="profile" element={<AdminProfile />} />
                     <Route path="review/:id" element={<ApplicationReview />} />
                 </Route>
