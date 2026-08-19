@@ -9,7 +9,8 @@
 /* Sidebar Styling (Matched to screenshot) */
 .sidebar {
     width: 260px;
-    background-color: #0b1727;
+    background-color: #0f172a;
+    /* Dark Navy Theme */
     display: flex;
     flex-direction: column;
     z-index: 40;
@@ -34,7 +35,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #17a966;
+    color: #10b981;
+    /* Emerald */
 }
 
 .sidebar-brand-name {
@@ -55,7 +57,7 @@
     font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #4b627d;
+    color: #64748b;
     margin: 1rem 0 0.5rem 1rem;
     font-weight: 700;
 }
@@ -67,7 +69,7 @@
     padding: 0.75rem 1rem;
     border-radius: 9999px;
     /* Pill shape */
-    color: #8397af;
+    color: #94a3b8;
     font-weight: 600;
     text-decoration: none;
     font-size: 0.9rem;
@@ -80,7 +82,8 @@
 }
 
 .sidebar-link.active {
-    background-color: #17a966;
+    background-color: #10b981;
+    /* Emerald */
     color: white;
 }
 
@@ -107,11 +110,11 @@
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 50%;
-    background-color: #17a966;
+    background-color: rgba(16, 185, 129, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #10b981;
     font-weight: 700;
     font-size: 0.9rem;
 }
@@ -128,7 +131,7 @@
 }
 
 .user-role-small {
-    color: #17a966;
+    color: #10b981;
     font-size: 0.7rem;
     font-weight: 600;
 }

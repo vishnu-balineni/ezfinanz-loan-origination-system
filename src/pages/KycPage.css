@@ -80,16 +80,39 @@
 .form-select,
 .form-textarea {
     width: 100%;
-    padding: 0.75rem 1rem;
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
+    padding: 0.85rem 1rem;
+    background-color: #ffffff;
+    /* Smooth white */
+    border: 1px solid #d1fae5;
+    /* Very subtle green border */
     border-radius: 0.75rem;
-    color: #1e293b;
+    color: #064e3b;
+    /* Deep green text */
     font-size: 1rem;
     outline: none;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-family: inherit;
     box-sizing: border-box;
+    box-shadow: inset 0 2px 4px 0 rgba(16, 185, 129, 0.02);
+}
+
+/* Custom styling specifically for styling the Date picker icon in webkit */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(47%) sepia(85%) saturate(308%) hue-rotate(113deg) brightness(95%) contrast(93%);
+    /* Turns the calendar icon to #10b981 green */
+}
+
+/* Custom styling for Select dropdowns */
+.form-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.2rem;
+    padding-right: 2.5rem;
+    /* space for the custom carrat */
 }
 
 .form-textarea {
@@ -101,13 +124,15 @@
 .form-select:focus,
 .form-textarea:focus {
     border-color: #10b981;
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15), 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     background-color: white;
+    transform: translateY(-1px);
 }
 
 .form-input::placeholder,
 .form-textarea::placeholder {
-    color: #94a3b8;
+    color: #a7f3d0;
+    /* Light emerald placeholder */
 }
 
 .input-hint {
@@ -150,4 +175,80 @@
     box-shadow: none;
     cursor: not-allowed;
     color: #64748b;
+}
+
+/* =========================================
+   React DatePicker Custom Component Overrides
+   (Eliminating the default blue theme for Green/White)
+   ========================================= */
+
+.custom-datepicker-wrapper .react-datepicker-wrapper {
+    width: 100%;
+}
+
+.react-datepicker {
+    font-family: inherit !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 1rem !important;
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1) !important;
+}
+
+.react-datepicker__header {
+    background-color: #ecfdf5 !important;
+    /* Green tint header */
+    border-bottom: 1px solid #d1fae5 !important;
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+    padding-top: 1rem !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+    color: #064e3b !important;
+    font-weight: 700 !important;
+}
+
+.react-datepicker__day-name {
+    color: #10b981 !important;
+    font-weight: 600 !important;
+}
+
+/* Selected item tracking */
+.react-datepicker__day--selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range,
+.react-datepicker__month-text--selected,
+.react-datepicker__month-text--in-selecting-range,
+.react-datepicker__month-text--in-range,
+.react-datepicker__quarter-text--selected,
+.react-datepicker__quarter-text--in-selecting-range,
+.react-datepicker__quarter-text--in-range,
+.react-datepicker__year-text--selected,
+.react-datepicker__year-text--in-selecting-range,
+.react-datepicker__year-text--in-range {
+    background-color: #10b981 !important;
+    color: white !important;
+    border-radius: 0.5rem !important;
+}
+
+/* Hover effects */
+.react-datepicker__day:hover,
+.react-datepicker__month-text:hover,
+.react-datepicker__quarter-text:hover,
+.react-datepicker__year-text:hover {
+    background-color: #d1fae5 !important;
+    border-radius: 0.5rem !important;
+    color: #064e3b !important;
+}
+
+/* Clean up month/year selects inside the header */
+.react-datepicker__header select {
+    background: white;
+    border: 1px solid #10b981;
+    border-radius: 0.25rem;
+    color: #064e3b;
+    padding: 0.15rem;
+    outline: none;
+    cursor: pointer;
 }

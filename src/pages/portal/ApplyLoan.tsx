@@ -2,15 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, FileText, WalletCards, ShieldCheck } from 'lucide-react';
 import { Stepper } from '../../components/Stepper';
-import KycPage from '../KycPage';
-import EligibilityPage from '../EligibilityPage';
-import BankDetailsPage from '../BankDetailsPage';
+import { triggerCustomAlert } from '../../components/shared/CustomAlertModal';
 import SelfiePage from '../SelfiePage';
+import api from '../../services/api';
 import './DashboardHome.css';
 import './ProfileStyles.css';
 
 // We create an internal inline component for the first "Requirements" step (previously all of ApplyLoan)
-const LoanRequirementsStep = ({ onNext }: { onNext: () => void }) => {
+const LoanRequirementsStep = ({ onNext }: { onNext: (amount: number, purpose: string) => void }) => {
     const [loanAmount, setLoanAmount] = useState<number>(50000);
     const [purpose, setPurpose] = useState<string>('');
 
@@ -80,7 +79,7 @@ const LoanRequirementsStep = ({ onNext }: { onNext: () => void }) => {
 
             <button
                 type="button"
-                onClick={onNext}
+                onClick={() => onNext(loanAmount, purpose)}
                 disabled={!purpose}
                 className="action-btn"
                 style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', justifyContent: 'center' }}
@@ -95,20 +94,60 @@ const LoanRequirementsStep = ({ onNext }: { onNext: () => void }) => {
 const ApplyLoan = () => {
     const navigate = useNavigate();
 
-    // Developer Mock State to trigger Fast-Track behavior
-    // In production, this would come from a Redux store or React Context (e.g. user.kycStatus === 'VERIFIED')
-    const [isVerified, setIsVerified] = useState(true);
+    // In production, this comes from true localStorage payload synced with backend auth
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const isVerified = storedUser.isKycVerified || false;
+
     const [currentStep, setCurrentStep] = useState(1);
 
-    const normalSteps = ["Requirements", "Eligibility", "KYC", "Bank", "Selfie", "Done"];
+    const [finalAmount, setFinalAmount] = useState(0);
+    const [finalPurpose, setFinalPurpose] = useState('');
+
     const fastTrackSteps = ["Requirements", "Liveness Check", "Done"];
 
-    const activeSteps = isVerified ? fastTrackSteps : normalSteps;
+    const activeSteps = fastTrackSteps;
 
-    const handleNext = () => {
-        window.scrollTo(0, 0);
-        setCurrentStep(prev => prev + 1);
+    const handleNext = async (amount?: number, purpose?: string) => {
+        if (currentStep === 1 && amount && purpose) {
+            setFinalAmount(amount);
+            setFinalPurpose(purpose);
+            window.scrollTo(0, 0);
+            setCurrentStep(2);
+        } else if (currentStep === 2) {
+            // Liveness Selfie is Complete -> Submit to backend!
+            try {
+                await api.post('/loans/apply', {
+                    userId: storedUser.id,
+                    requestedAmount: finalAmount,
+                    termMonths: 12, // Defaulting logic for fast track
+                    purpose: finalPurpose
+                });
+                window.scrollTo(0, 0);
+                setCurrentStep(3);
+            } catch (err) {
+                triggerCustomAlert('error', 'Failed to create loan application.', 'Application Failed');
+                console.error(err);
+            }
+        }
     };
+
+    // If User is Not verified, they shouldn't even be able to start Apply Flow
+    if (!isVerified) {
+        return (
+            <div className="onboarding-dashboard-view">
+                <div className="dash-card animate-fade-in" style={{ padding: '3rem', textAlign: 'center', marginTop: '2rem' }}>
+                    <ShieldCheck size={64} color="#eab308" style={{ margin: '0 auto 1.5rem auto' }} />
+                    <h2 style={{ color: '#854d0e', marginBottom: '1rem', fontSize: '2rem' }}>Verification Required</h2>
+                    <p style={{ color: '#713f12', maxWidth: '600px', margin: '0 auto 2rem auto', fontSize: '1.1rem' }}>
+                        To prevent fraud and comply with RBI guidelines, you must complete your Identity Verification, KYC, and Bank mapping before applying for a loan.
+                    </p>
+                    <button onClick={() => navigate('/dashboard/verify')} className="action-btn" style={{ margin: '0 auto', background: '#eab308', color: 'white', border: 'none' }}>
+                        Go to Verification Portal
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="onboarding-dashboard-view">
@@ -116,21 +155,11 @@ const ApplyLoan = () => {
                 <div className="header-user-info">
                     <h2 className="header-user-name" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <ShieldCheck size={28} color="#10b981" />
-                        {isVerified ? "Fast-Track Loan Application" : "Loan Application Wizard"}
+                        Fast-Track Loan Application
                     </h2>
                     <span className="header-user-role" style={{ color: '#94a3b8', fontWeight: 500, fontSize: '1rem', marginTop: '0.5rem' }}>
-                        {isVerified
-                            ? "Since you are already a verified customer, you just need a quick liveness check!"
-                            : "Complete these steps logically to secure your EZFINANZ disbursal."}
+                        Since you are successfully verified, you just need a quick liveness check to confirm intent!
                     </span>
-
-                    {/* Developer Mock Toggle */}
-                    <div style={{ marginTop: '1rem' }}>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: '#6366f1', cursor: 'pointer' }}>
-                            <input type="checkbox" checked={isVerified} onChange={(e) => { setIsVerified(e.target.checked); setCurrentStep(1); }} />
-                            [Dev Toggle] Pre-Verified User?
-                        </label>
-                    </div>
                 </div>
             </div>
 
@@ -141,49 +170,20 @@ const ApplyLoan = () => {
             )}
 
             <div className="wizard-content-area step-wrapper-clean">
-                {/* 
-                   DYNAMIC ROUTING BASED ON isVerified 
-                */}
-                {isVerified ? (
-                    <>
-                        {currentStep === 1 && <LoanRequirementsStep onNext={handleNext} />}
-                        {currentStep === 2 && <SelfiePage onComplete={handleNext} />}
+                {currentStep === 1 && <LoanRequirementsStep onNext={handleNext} />}
+                {currentStep === 2 && <SelfiePage onComplete={handleNext} />}
 
-                        {currentStep === 3 && (
-                            <div className="dash-card animate-fade-in" style={{ padding: '3rem', textAlign: 'center' }}>
-                                <CheckCircle2 size={64} color="#16a34a" style={{ margin: '0 auto 1.5rem auto' }} />
-                                <h2 style={{ color: '#065f46', marginBottom: '1rem', fontSize: '2rem' }}>Application Fast-Tracked!</h2>
-                                <p style={{ color: '#047857', maxWidth: '600px', margin: '0 auto 2rem auto', fontSize: '1.1rem' }}>
-                                    Liveness check passed. Your loan request will be instantly disbursed to your previously verified bank account.
-                                </p>
-                                <button onClick={() => navigate('/dashboard')} className="action-btn" style={{ margin: '0 auto' }}>
-                                    Return to Dashboard
-                                </button>
-                            </div>
-                        )}
-                    </>
-                ) : (
-                    <>
-                        {currentStep === 1 && <LoanRequirementsStep onNext={handleNext} />}
-                        {currentStep === 2 && <EligibilityPage onComplete={handleNext} />}
-                        {currentStep === 3 && <KycPage onComplete={handleNext} />}
-                        {currentStep === 4 && <BankDetailsPage onComplete={handleNext} />}
-                        {currentStep === 5 && <SelfiePage onComplete={handleNext} />}
-
-                        {currentStep === 6 && (
-                            <div className="dash-card animate-fade-in" style={{ padding: '3rem', textAlign: 'center' }}>
-                                <CheckCircle2 size={64} color="#16a34a" style={{ margin: '0 auto 1.5rem auto' }} />
-                                <h2 style={{ color: '#065f46', marginBottom: '1rem', fontSize: '2rem' }}>Application Complete!</h2>
-                                <p style={{ color: '#047857', maxWidth: '600px', margin: '0 auto 2rem auto', fontSize: '1.1rem' }}>
-                                    Your application, identity documents, bank details, and selfies have been securely stored.
-                                    Please return to the Dashboard to track your administrative review status.
-                                </p>
-                                <button onClick={() => navigate('/dashboard')} className="action-btn" style={{ margin: '0 auto' }}>
-                                    Go to Dashboard
-                                </button>
-                            </div>
-                        )}
-                    </>
+                {currentStep === 3 && (
+                    <div className="dash-card animate-fade-in" style={{ padding: '3rem', textAlign: 'center' }}>
+                        <CheckCircle2 size={64} color="#16a34a" style={{ margin: '0 auto 1.5rem auto' }} />
+                        <h2 style={{ color: '#065f46', marginBottom: '1rem', fontSize: '2rem' }}>Application Submitted!</h2>
+                        <p style={{ color: '#047857', maxWidth: '600px', margin: '0 auto 2rem auto', fontSize: '1.1rem' }}>
+                            Liveness check passed. Your loan request is now successfully fast-tracked to the Admin desk. Once approved, it will be instantly disbursed to your previously verified bank account.
+                        </p>
+                        <button onClick={() => navigate('/dashboard')} className="action-btn" style={{ margin: '0 auto' }}>
+                            Return to Dashboard
+                        </button>
+                    </div>
                 )}
             </div>
         </div>

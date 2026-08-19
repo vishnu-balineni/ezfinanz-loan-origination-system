@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 // Core Flow Imports
 import AuthPage from './pages/AuthPage';
+import CustomAlertModal from './components/shared/CustomAlertModal';
 
 // Portal Phase 10.5 Imports
 import CustomerLayout from './components/layout/CustomerLayout';
@@ -24,6 +25,7 @@ import AdminProfile from './pages/admin/AdminProfile';
 function App() {
     return (
         <Router>
+            <CustomAlertModal />
             <Routes>
                 {/* Core Onboarding Routes */}
                 <Route path="/" element={<AuthPage />} />

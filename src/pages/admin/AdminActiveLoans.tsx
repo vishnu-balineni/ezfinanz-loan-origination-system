@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Briefcase, Search, AlertTriangle,
     CheckCircle2, ChevronRight, Activity, TrendingUp, HelpCircle, X
 } from 'lucide-react';
+import api from '../../services/api';
 import './AdminDashboard.css';
 
 const mockActiveLoans = [
@@ -60,8 +61,32 @@ const AdminActiveLoans = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('All');
     const [selectedLoan, setSelectedLoan] = useState<any>(null);
+    const [queue, setQueue] = useState<any[]>([]);
 
-    const filteredLoans = mockActiveLoans.filter(loan => {
+    useEffect(() => {
+        const fetchActive = async () => {
+            try {
+                const res = await api.get('/loans/admin/all');
+                const active = res.data.filter((l: any) => l.status === 'APPROVED').map((app: any) => ({
+                    id: app.id.toString(),
+                    name: app.applicant?.fullName || 'Unknown',
+                    principal: app.requestedAmount || 0,
+                    outstanding: app.approvedAmount || app.requestedAmount || 0,
+                    emi: Math.round(((app.approvedAmount || app.requestedAmount || 0) * 1.15) / (app.termMonths || 12)),
+                    nextDueDate: new Date(Date.now() + 30 * 86400000).toLocaleDateString(),
+                    status: 'Current',
+                    tenure: `${app.termMonths || 12} Mos`,
+                    paidMos: 0
+                }));
+                setQueue(active);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchActive();
+    }, []);
+
+    const filteredLoans = queue.filter(loan => {
         const matchesSearch = loan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             loan.id.toLowerCase().includes(searchTerm.toLowerCase());
 

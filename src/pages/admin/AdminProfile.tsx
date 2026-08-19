@@ -2,14 +2,14 @@ import { KeyRound, ShieldAlert } from 'lucide-react';
 import './AdminProfile.css';
 
 const AdminProfile = () => {
-    // Mock Admin User Data
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
     const adminData = {
-        name: "Admin User",
-        email: "admin@ezfinanz.com",
-        empId: "EZ-ADM-8091",
-        role: "Super Administrator",
+        name: storedUser.fullName || "System Administrator",
+        email: storedUser.email || "admin@ezfinanz.com",
+        empId: `EZ-ADM-${storedUser.id || 8091}`,
+        role: storedUser.role || "Administrator",
         hub: "National Processing Center (HQ)",
-        lastLogin: "Today, 10:45 AM (IP: 192.168.1.1)"
+        lastLogin: new Date().toLocaleString() + " (IP: 192.168.1.1)"
     };
 
     return (

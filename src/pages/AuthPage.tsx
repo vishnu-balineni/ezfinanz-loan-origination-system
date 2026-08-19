@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Phone, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck, Fingerprint, Sparkles } from 'lucide-react';
+import { triggerCustomAlert } from '../components/shared/CustomAlertModal';
 import './AuthPage.css'; // Importing normal CSS
 
 const AuthPage = () => {
@@ -16,10 +17,13 @@ const AuthPage = () => {
     // Phone form states
     const [phone, setPhone] = useState('');
 
-    // Shared OTP states
+    // Shared OTP states for Phone login 
     const [otpSent, setOtpSent] = useState(false);
     const [otp, setOtp] = useState(['', '', '', '']);
     const [countdown, setCountdown] = useState(0);
+
+    // Added fullName for Registration
+    const [fullName, setFullName] = useState('');
 
     // Checks for password strength
     const hasMinLength = password.length >= 8;
@@ -60,30 +64,70 @@ const AuthPage = () => {
         return () => window.clearInterval(timer);
     }, [countdown]);
 
-    // Send OTP logic (Mocking real backend API)
-    const handleSendOtp = (e: React.FormEvent) => {
+    // API Call to Spring Boot
+    const handleAuthSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        let valid = false;
-        let target = '';
-
-        if (method === 'phone' && phone.length === 10) {
-            valid = true;
-            target = '+91 ' + phone;
-        } else if (method === 'email' && email.length > 0) {
-            // For sign-ups, we want to ensure password is also strong, but for demo we just check length
-            if (!isLogin && strengthScore < 3) {
-                alert("Please meet all password requirements before proceeding.");
-                return;
+        if (method === 'phone') {
+            if (phone.length === 10) {
+                setOtpSent(true);
+                setCountdown(30);
+                triggerCustomAlert('success', `Mock Notice: Phone OTP sent to +91 ${phone}`, 'OTP Sent');
             }
-            valid = true;
-            target = email;
+            return;
         }
 
-        if (valid) {
-            setOtpSent(true);
-            setCountdown(30);
-            alert(`Mock Backend Notice: Sending verification OTP to ${target}.\n\nIn a real app, this would use a service like Twilio or regular email backend!`);
+        // --- EMAIL LOGIN / SIGNUP ---
+        if (method === 'email' && email.length > 0) {
+
+            if (!isLogin && strengthScore < 3) {
+                triggerCustomAlert('error', "Please meet all password requirements before proceeding.", 'Weak Password');
+                return;
+            }
+
+            try {
+                const endpoint = isLogin ? 'http://localhost:8080/api/auth/login' : 'http://localhost:8080/api/auth/register';
+
+                const body = isLogin
+                    ? { email, password }
+                    : { fullName, email, password, phone: phone }; // Pass the actual phone number!
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Authentication failed');
+                }
+
+                triggerCustomAlert('success', data.message || 'Success!', 'Registration Complete');
+
+                // Demo Logic: if email contains admin, elevate them to Admin Role locally
+                const finalRole = email.toLowerCase().includes('admin') ? 'ROLE_ADMIN' : data.role;
+
+                // Save user info to simulate session
+                localStorage.setItem('user', JSON.stringify({
+                    id: data.userId,
+                    email: data.email,
+                    role: finalRole,
+                    fullName: data.fullName || 'User',
+                    isKycVerified: data.isKycVerified || false,
+                    phone: data.phone || ''
+                }));
+
+                if (finalRole === 'ROLE_ADMIN') {
+                    navigate('/admin/dashboard');
+                } else {
+                    navigate('/dashboard');
+                }
+
+            } catch (err: any) {
+                triggerCustomAlert('error', err.response?.data?.error || err.message, 'Registration Failed');
+            }
         }
     };
 
@@ -92,7 +136,7 @@ const AuthPage = () => {
             setOtp(['', '', '', '']);
             setCountdown(30);
             const target = method === 'phone' ? `+91 ${phone}` : email;
-            alert(`Mock Backend Notice: RE-Sending verification OTP to ${target}`);
+            triggerCustomAlert('success', `Mock Backend Notice: RE-Sending verification OTP to ${target}`, 'OTP Resent');
         }
     };
 
@@ -121,19 +165,19 @@ const AuthPage = () => {
     const handleVerifyOtp = () => {
         // Here we mock verifying the OTP with the backend API
         if (otp.join('').length === 4) {
-            alert("Verification successful!");
+            triggerCustomAlert('success', "Verification successful!", 'OTP Verified');
             navigate('/dashboard');
         }
     };
 
     const handleGoogleOauth = () => {
-        alert("Mock OAuth: Authenticated with Google successfully.");
+        triggerCustomAlert('success', "Mock OAuth: Authenticated with Google successfully.", 'OAuth Success');
         // Redirecting directly based on mock role resolution
         navigate('/dashboard');
     };
 
     const handleAdminLoginInfo = () => {
-        alert("Admin Simulator mode activated.");
+        triggerCustomAlert('success', "Admin Simulator mode activated.", 'Switched to Admin');
         navigate('/admin/dashboard');
     };
 
@@ -273,9 +317,43 @@ const AuthPage = () => {
                     <div className="animate-fade-in">
 
                         {!otpSent ? (
-                            <form onSubmit={handleSendOtp}>
+                            <form onSubmit={handleAuthSubmit}>
                                 {method === 'email' && (
                                     <>
+                                        {!isLogin && (
+                                            <>
+                                                <div className="form-group">
+                                                    <label>Full Name</label>
+                                                    <div className="input-wrapper">
+                                                        <input
+                                                            type="text"
+                                                            required
+                                                            placeholder="John Doe"
+                                                            value={fullName}
+                                                            onChange={e => setFullName(e.target.value)}
+                                                            className="auth-input"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Phone Number</label>
+                                                    <div className="input-wrapper">
+                                                        <Phone className="input-icon" size={20} />
+                                                        <input
+                                                            type="tel"
+                                                            required
+                                                            placeholder="Enter 10-digit number"
+                                                            value={phone}
+                                                            onChange={e => {
+                                                                const val = e.target.value.replace(/\D/g, '');
+                                                                if (val.length <= 10) setPhone(val);
+                                                            }}
+                                                            className="auth-input"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
                                         <div className="form-group">
                                             <label>Email Address</label>
                                             <div className="input-wrapper">
@@ -348,7 +426,7 @@ const AuthPage = () => {
                                     className="auth-submit-btn"
                                     disabled={method === 'phone' && phone.length < 10}
                                 >
-                                    {isLogin ? (method === 'email' ? 'Sign In w/ OTP' : 'Send OTP') : 'Send Verification OTP'}
+                                    {isLogin ? (method === 'email' ? 'Sign In' : 'Send OTP') : (method === 'email' ? 'Create Account' : 'Send Verification OTP')}
                                     <ArrowRight size={18} />
                                 </button>
                             </form>

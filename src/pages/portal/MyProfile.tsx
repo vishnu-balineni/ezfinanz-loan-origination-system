@@ -4,20 +4,37 @@ import {
     ChevronRight,
     ShieldCheck
 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import api from '../../services/api';
 import './ProfileStyles.css';
 
 const MyProfile = () => {
-    // Restored EZFinanz specific User Data Context
-    const userProfile = {
-        fullName: "Rahul Sharma",
-        role: "Verified Borrower",
-        phone: "+91 98765 43210",
-        email: "rahul.sharma@example.com",
-        dob: "15 Aug 1990",
-        panData: "ABCDE1234F",
-        bankName: "State Bank of India",
-        accountNo: "XXXX-XXXX-1234",
-        ifsc: "SBIN0001234"
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const userFullName = storedUser.fullName || "Guest User";
+    const userRole = storedUser.isKycVerified ? "Verified Borrower" : "Unverified Identity";
+
+    const [bankDetails, setBankDetails] = useState<any>(null);
+
+    useEffect(() => {
+        if (!storedUser.id) return;
+
+        const fetchDetails = async () => {
+            try {
+                const res = await api.get(`/verification/${storedUser.id}/status`);
+                if (res.data && res.data.bankDetails) {
+                    setBankDetails(res.data.bankDetails);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchDetails();
+    }, [storedUser.id]);
+
+    const getInitials = (name: string) => {
+        const parts = name.split(' ');
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+        return name.slice(0, 2).toUpperCase();
     };
 
     return (
@@ -26,17 +43,19 @@ const MyProfile = () => {
             {/* Header Dark Block */}
             <div className="profile-header-card">
                 <div className="profile-header-left">
-                    <div className="header-avatar-box">
-                        <img src="https://ui-avatars.com/api/?name=Rahul+Sharma&background=dcfce7&color=166534&size=150" alt="Avatar" />
+                    <div className="header-avatar-box" style={{ background: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '80px', height: '80px', borderRadius: '50%', fontSize: '2rem', fontWeight: 700 }}>
+                        {getInitials(userFullName)}
                     </div>
                     <div className="header-user-info">
                         <h2 className="header-user-name">
-                            {userProfile.fullName}
+                            {userFullName}
                             <span className="edit-icon-chip" title="Edit Avatar">
                                 <Edit2 size={14} />
                             </span>
                         </h2>
-                        <span className="header-user-role">{userProfile.role}</span>
+                        <span className="header-user-role" style={{ color: storedUser.isKycVerified ? '#10b981' : '#f59e0b' }}>
+                            {userRole}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -60,19 +79,15 @@ const MyProfile = () => {
                     <div className="details-grid">
                         <div className="detail-block light">
                             <label>Personal Contact Number</label>
-                            <span>{userProfile.phone}</span>
+                            <span>{storedUser.phone || 'N/A'}</span>
                         </div>
                         <div className="detail-block light">
                             <label>Personal Email</label>
-                            <span>{userProfile.email}</span>
+                            <span>{storedUser.email || 'N/A'}</span>
                         </div>
-                        <div className="detail-block light">
-                            <label>Date of Birth</label>
-                            <span>{userProfile.dob}</span>
-                        </div>
-                        <div className="detail-block light">
-                            <label>PAN Number</label>
-                            <span>{userProfile.panData}</span>
+                        <div className="detail-block light" style={{ gridColumn: '1 / -1' }}>
+                            <label>Associated Auth Method</label>
+                            <span style={{ textTransform: 'capitalize' }}>{storedUser.authMethod || 'Unknown'} - Secure Identity</span>
                         </div>
                     </div>
 
@@ -99,15 +114,15 @@ const MyProfile = () => {
                     <div className="details-grid">
                         <div className="detail-block dark">
                             <label>Bank Name</label>
-                            <span>{userProfile.bankName}</span>
+                            <span>{bankDetails?.bankName || 'Not Provided'}</span>
                         </div>
                         <div className="detail-block dark" style={{ gridColumn: '1 / -1' }}>
                             <label>Account Number</label>
-                            <span>{userProfile.accountNo}</span>
+                            <span>{bankDetails?.accountNumber || 'XXXX-XXXX-XXXX'}</span>
                         </div>
                         <div className="detail-block dark">
                             <label>IFSC Code</label>
-                            <span>{userProfile.ifsc}</span>
+                            <span>{bankDetails?.ifscCode || 'N/A'}</span>
                         </div>
                     </div>
                 </div>

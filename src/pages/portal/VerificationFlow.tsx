@@ -4,11 +4,16 @@ import EligibilityPage from '../EligibilityPage';
 import BankDetailsPage from '../BankDetailsPage';
 import SelfiePage from '../SelfiePage';
 import { ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Stepper } from '../../components/Stepper';
 import './ProfileStyles.css';
 
 const VerificationFlow = () => {
+    // Get Logged In User
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const isVerified = storedUser.isKycVerified || false;
+
     // Verification Flow State (0: KYC, 1: Eligibility, 2: Bank, 3: Selfie, 4: Done)
-    const [onboardingStep, setOnboardingStep] = useState(0);
+    const [onboardingStep, setOnboardingStep] = useState(isVerified ? 4 : 0);
 
     return (
         <div className="onboarding-dashboard-view">
@@ -21,6 +26,10 @@ const VerificationFlow = () => {
                         Complete the required regulatory steps to unlock your loan disbursal.
                     </span>
                 </div>
+            </div>
+
+            <div style={{ marginBottom: '2rem', padding: '0 1rem' }}>
+                <Stepper currentStep={onboardingStep + 2} />
             </div>
 
             {onboardingStep < 4 ? (

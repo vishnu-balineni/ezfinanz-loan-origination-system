@@ -1,10 +1,33 @@
+import { useState, useEffect } from 'react';
 import { FileText, Download, ShieldCheck, PlusCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 import './DashboardHome.css';
 import './ProfileStyles.css';
 
 const Documents = () => {
     const navigate = useNavigate();
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const [kycDocs, setKycDocs] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!storedUser.id) return;
+
+        const fetchDocs = async () => {
+            try {
+                const res = await api.get(`/verification/${storedUser.id}/status`);
+                if (res.data && res.data.kycDocuments) {
+                    setKycDocs(res.data.kycDocuments);
+                }
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setLoading(false);
+            }
+        };
+        fetchDocs();
+    }, [storedUser.id]);
 
     // Configurable row mapping to exact prompt specs
     const DocumentRow = ({ name, size }: { name: string, size: string }) => (
@@ -59,14 +82,26 @@ const Documents = () => {
                 <h3 className="card-title">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <ShieldCheck size={20} className="text-emerald-600" />
-                        Loan Records
+                        Platform Documents & KYC Records
                     </div>
                 </h3>
 
                 <div style={{ border: '1px solid #e2e8f0', borderRadius: '1rem', overflow: 'hidden' }}>
-                    <DocumentRow name="Loan Agreement.pdf" size="1.2 MB" />
-                    <DocumentRow name="E-Mandate Form.pdf" size="0.8 MB" />
-                    <DocumentRow name="Repayment Schedule.pdf" size="2.1 MB" />
+                    {loading ? (
+                        <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>Loading records...</div>
+                    ) : kycDocs.length === 0 ? (
+                        <div style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>No documents uploaded. Complete verification to see your records here.</div>
+                    ) : kycDocs.map((doc, idx) => (
+                        <DocumentRow key={idx} name={`${doc.documentType}.pdf`} size="1.2 MB" />
+                    ))}
+
+                    {/* Only show these if they actually have documents and are likely an active applicant */}
+                    {kycDocs.length > 0 && (
+                        <>
+                            <DocumentRow name="Terms_Of_Service.pdf" size="0.4 MB" />
+                            <DocumentRow name="E-Mandate_Consent.pdf" size="0.8 MB" />
+                        </>
+                    )}
                 </div>
             </div>
         </div>

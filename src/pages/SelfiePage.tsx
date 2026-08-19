@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, RefreshCcw, CheckCircle2, ShieldAlert, Sparkles } from 'lucide-react';
 import TrustFooter from '../components/shared/TrustFooter';
+import { triggerCustomAlert } from '../components/shared/CustomAlertModal';
+import api from '../services/api';
 import './SelfiePage.css';
 
 interface SelfieProps {
@@ -86,9 +88,29 @@ const SelfiePage = ({ onComplete }: SelfieProps) => {
         setCapturedImage(null);
     };
 
-    const submitApplication = () => {
-        // Here you would normally POST the base64 string and other gathered app data to backend
-        setIsSubmitted(true);
+    const submitApplication = async () => {
+        try {
+            const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+            const userId = storedUser.id;
+
+            if (!userId) {
+                triggerCustomAlert('error', 'Session expired. Please log in again.', 'Unauthorized');
+                navigate('/');
+                return;
+            }
+
+            // Fire finalizing verification endpoint matching our Backend VerificationService logic!
+            await api.post(`/verification/${userId}/finalize`, {});
+
+            // Update local context
+            storedUser.isKycVerified = true;
+            localStorage.setItem('user', JSON.stringify(storedUser));
+
+            setIsSubmitted(true);
+        } catch (err) {
+            console.error(err);
+            triggerCustomAlert('error', 'Failed to submit verification status.', 'System Error');
+        }
     };
 
     const returnToDashboard = () => {
@@ -106,10 +128,10 @@ const SelfiePage = ({ onComplete }: SelfieProps) => {
                 <div className="success-icon-wrapper">
                     <CheckCircle2 size={64} color="white" />
                 </div>
-                <h2>Application Submitted for Admin Review</h2>
-                <p>Your details and KYC documents have securely reached our team. You'll hear back within 24-48 hours via Email/SMS.</p>
+                <h2>{onComplete ? 'Verification Completed!' : 'Application Submitted for Admin Review'}</h2>
+                <p>Your details and KYC documents have securely reached our team.</p>
                 <button onClick={returnToDashboard} className="return-btn">
-                    Return to Dashboard
+                    {onComplete ? 'Continue to Next Step' : 'Return to Dashboard'}
                 </button>
             </div>
         );

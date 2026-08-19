@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Search, Filter, Clock, AlertCircle,
     ShieldAlert, FileText, ChevronRight,
     CheckSquare, Square
 } from 'lucide-react';
+import api from '../../services/api';
 import './AdminDashboard.css';
 
 // Extended Mock Data for the Pending Queue
@@ -55,6 +56,31 @@ const AdminPending = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('All');
+    const [queue, setQueue] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchPending = async () => {
+            try {
+                const res = await api.get('/loans/admin/all');
+                // Pending KYC effectively maps to PENDING_ADMIN_REVIEW
+                const pending = res.data.filter((l: any) => l.status === 'PENDING_ADMIN_REVIEW').map((app: any) => ({
+                    id: app.id.toString(),
+                    name: app.applicant?.fullName || 'Unknown',
+                    date: new Date(app.createdAt).toLocaleString(),
+                    issue: app.isKycSubmitted ? 'Awaiting Human Verification' : 'KYC Docs Missing',
+                    severity: app.isKycSubmitted ? 'Medium' : 'High',
+                    slaState: 'On Track',
+                    amount: app.requestedAmount || 0,
+                    rawStatus: app.status
+                }));
+                // Sort by ID falling backwards
+                setQueue(pending.sort((a: any, b: any) => parseInt(b.id) - parseInt(a.id)));
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchPending();
+    }, []);
 
     // Simulate selection state for bulk actions
     const [selectedApps, setSelectedApps] = useState<string[]>([]);
@@ -66,7 +92,7 @@ const AdminPending = () => {
     };
 
     // Compute the filtered list dynamically
-    const filteredQueue = mockPendingQueue.filter(app => {
+    const filteredQueue = queue.filter(app => {
         // Search Filter
         const matchesSearch = app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             app.id.toLowerCase().includes(searchTerm.toLowerCase());

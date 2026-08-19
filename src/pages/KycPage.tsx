@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import TrustFooter from '../components/shared/TrustFooter';
+import { triggerCustomAlert } from '../components/shared/CustomAlertModal';
+import api from '../services/api';
 import './KycPage.css';
 
 interface KycProps {
@@ -13,11 +17,14 @@ const KycPage = ({ onComplete }: KycProps) => {
 
     // Form States
     const [fullName, setFullName] = useState('');
-    const [dob, setDob] = useState('');
+    const [dobDate, setDobDate] = useState<Date | null>(null);
     const [gender, setGender] = useState('');
     const [address, setAddress] = useState('');
     const [panNumber, setPanNumber] = useState('');
     const [nationalId, setNationalId] = useState('');
+    const [documentType, setDocumentType] = useState('AADHAR');
+    const [documentFile, setDocumentFile] = useState<File | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Input Masking Handlers
     const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,16 +49,45 @@ const KycPage = ({ onComplete }: KycProps) => {
         gender !== '' &&
         address.trim() !== '' &&
         panNumber.length === 10 &&
-        nationalId.replace(/\s/g, '').length === 12;
+        nationalId.replace(/\s/g, '').length === 12 &&
+        documentFile !== null;
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (isFormValid) {
+        if (!isFormValid) return;
+
+        setIsSubmitting(true);
+        // Simulate API call to PUT /api/loans/{loanId}/kyc
+        // In a real app, you would upload the file to S3 first and get a URL, 
+        // or send as multipart/form-data. For now we use the mock DTO we built.
+        try {
+            const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+            const userId = storedUser.id;
+
+            if (!userId) {
+                triggerCustomAlert('error', 'Session expired. Please log in again.', 'Unauthorized');
+                navigate('/');
+                return;
+            }
+
+            const payload = {
+                documentType: documentType,
+                documentUrl: documentFile ? URL.createObjectURL(documentFile) : "https://dummyurl.com/doc.pdf"
+            };
+
+            await api.post(`/verification/${userId}/kyc`, payload);
+
+            triggerCustomAlert('success', "KYC Documents Uploaded & Submitted successfully!", 'KYC Verified');
+
             if (onComplete) {
                 onComplete();
             } else {
                 navigate('/eligibility');
             }
+        } catch (error) {
+            triggerCustomAlert('error', 'Failed to submit KYC documentation. Please try again.', 'KYC Submission Failed');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -80,32 +116,45 @@ const KycPage = ({ onComplete }: KycProps) => {
                             />
                         </div>
 
-                        {/* Date of Birth */}
-                        <div className="form-group">
+                        {/* Date of Birth - Custom Datepicker */}
+                        <div className="form-group custom-datepicker-wrapper">
                             <label className="form-label" htmlFor="dob">Date of Birth</label>
-                            <input
+                            <DatePicker
                                 id="dob"
-                                type="date"
+                                selected={dobDate}
+                                onChange={(date: Date | null) => setDobDate(date)}
                                 className="form-input"
-                                value={dob}
-                                onChange={(e) => setDob(e.target.value)}
+                                placeholderText="Select Date"
+                                dateFormat="dd-MM-yyyy"
+                                showYearDropdown
+                                showMonthDropdown
+                                dropdownMode="select"
+                                maxDate={new Date()}
                             />
                         </div>
 
-                        {/* Gender */}
+                        {/* Gender - Replaced Dropdown with Smooth Selectors */}
                         <div className="form-group">
                             <label className="form-label" htmlFor="gender">Gender</label>
-                            <select
-                                id="gender"
-                                className="form-select"
-                                value={gender}
-                                onChange={(e) => setGender(e.target.value)}
-                            >
-                                <option value="" disabled>Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                            </select>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                {['Male', 'Female', 'Other'].map(opt => (
+                                    <button
+                                        type="button"
+                                        key={opt}
+                                        onClick={() => setGender(opt)}
+                                        style={{
+                                            flex: 1, padding: '0.75rem', borderRadius: '0.75rem', border: '2px solid',
+                                            borderColor: gender === opt ? '#10b981' : '#e2e8f0',
+                                            background: gender === opt ? '#ecfdf5' : 'white',
+                                            color: gender === opt ? '#065f46' : '#64748b',
+                                            fontWeight: 600, transition: 'all 0.2s', cursor: 'pointer',
+                                            boxShadow: gender === opt ? '0 4px 6px -1px rgba(16, 185, 129, 0.2)' : 'none'
+                                        }}
+                                    >
+                                        {opt}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         {/* Current Address */}
@@ -150,23 +199,56 @@ const KycPage = ({ onComplete }: KycProps) => {
 
                     </div>
 
-                    {/* Optional ID Upload */}
-                    <div className="form-group full-width">
-                        <label className="form-label" style={{ display: 'block', marginBottom: '0.5rem' }}>Upload Photocopy of ID Document (Optional)</label>
+                    {/* Mandatory ID Upload */}
+                    <div className="form-group full-width" style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+                        <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: '#1e293b' }}>Upload KYC Documents</h3>
+
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label className="form-label">Document Type</label>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
+                                {[{ val: 'AADHAR', label: 'Aadhaar Card' }, { val: 'PAN', label: 'PAN Card' }, { val: 'PASSPORT', label: 'Passport' }].map(opt => (
+                                    <button
+                                        type="button"
+                                        key={opt.val}
+                                        onClick={() => setDocumentType(opt.val)}
+                                        style={{
+                                            flex: 1, minWidth: '120px', padding: '0.75rem', borderRadius: '0.75rem', border: '2px solid',
+                                            borderColor: documentType === opt.val ? '#10b981' : '#e2e8f0',
+                                            background: documentType === opt.val ? '#ecfdf5' : 'white',
+                                            color: documentType === opt.val ? '#065f46' : '#64748b',
+                                            fontWeight: 600, transition: 'all 0.2s', cursor: 'pointer', textAlign: 'center',
+                                            boxShadow: documentType === opt.val ? '0 4px 6px -1px rgba(16, 185, 129, 0.2)' : 'none'
+                                        }}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <label className="form-label" style={{ display: 'block', marginBottom: '0.5rem' }}>Upload Document File (Required)</label>
                         <input
                             type="file"
                             accept="image/*,.pdf"
-                            style={{ padding: '0.75rem', border: '1px dashed #cbd5e1', borderRadius: '0.5rem', background: '#f8fafc', width: '100%', cursor: 'pointer' }}
+                            onChange={(e) => setDocumentFile(e.target.files ? e.target.files[0] : null)}
+                            style={{ padding: '0.75rem', border: '1px dashed #94a3b8', borderRadius: '0.5rem', background: '#ffffff', width: '100%', cursor: 'pointer' }}
                         />
                         <div className="input-hint" style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#64748b' }}>Formats: JPG, PNG, PDF. Max size: 5MB.</div>
+
+                        {documentFile && (
+                            <div style={{ marginTop: '0.5rem', color: '#16a34a', fontSize: '0.85rem', fontWeight: 600 }}>
+                                <CheckCircle2 size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
+                                Attached: {documentFile.name}
+                            </div>
+                        )}
                     </div>
 
                     <button
                         type="submit"
                         className="continue-btn"
-                        disabled={!isFormValid}
+                        disabled={!isFormValid || isSubmitting}
                     >
-                        Save & Continue
+                        {isSubmitting ? 'Uploading...' : 'Save & Continue'}
                         <ArrowRight size={18} />
                     </button>
                 </form>

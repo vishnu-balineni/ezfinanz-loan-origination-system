@@ -1,45 +1,21 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Activity, Clock, CheckCircle2, ChevronRight,
     Users, Banknote, ShieldAlert, FileText, Download,
     Settings, Briefcase
 } from 'lucide-react';
+import api from '../../services/api';
 import './AdminDashboard.css';
 import '../portal/ProfileStyles.css'; // For the dark hero region
 
-// Mock applications for the Queue
-const mockApplications = [
-    {
-        id: "EZ-1042",
-        name: "Rahul Sharma",
-        amount: 100000,
-        tenure: 12,
-        stage: "Admin Review",
-        date: "Today, 14:30",
-        cibil: 752,
-        status: "Pending" // Yellow
-    },
-    {
-        id: "EZ-1041",
-        name: "Priya Patel",
-        amount: 450000,
-        tenure: 36,
-        stage: "Disbursed",
-        date: "Today, 09:15",
-        cibil: 810,
-        status: "Approved" // Green
-    },
-    {
-        id: "EZ-1040",
-        name: "Amit Kumar",
-        amount: 50000,
-        tenure: 6,
-        stage: "Eligibility Failed",
-        date: "Yesterday",
-        cibil: 590,
-        status: "Rejected" // Red
-    }
-];
+// Helper mapping to transform backend entities to UI display if needed
+const mapBackendStatus = (status: string) => {
+    if (status === 'PENDING_ADMIN_REVIEW' || status === 'PENDING_KYC') return 'Pending';
+    if (status === 'APPROVED') return 'Approved';
+    if (status === 'REJECTED') return 'Rejected';
+    return status;
+};
 
 const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
@@ -47,6 +23,37 @@ const formatCurrency = (val: number) => {
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
+    const [queue, setQueue] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const [stats, setStats] = useState({ total: 0, pending: 0, disbursed: 0 });
+
+    useEffect(() => {
+        const fetchPendingLoans = async () => {
+            try {
+                const res = await api.get('/loans/admin/all');
+
+                // Keep the queue ordered newest first
+                const sortedQueue = res.data.sort((a: any, b: any) => b.id - a.id);
+                setQueue(sortedQueue);
+
+                // Dynamically compile real metrics from the Database!
+                const totalApps = sortedQueue.length;
+                const pendingCount = sortedQueue.filter((l: any) => l.status === 'PENDING_ADMIN_REVIEW').length;
+                const disbursedAmount = sortedQueue
+                    .filter((l: any) => l.status === 'APPROVED')
+                    .reduce((sum: number, l: any) => sum + (l.approvedAmount || l.requestedAmount || 0), 0);
+
+                setStats({ total: totalApps, pending: pendingCount, disbursed: disbursedAmount });
+                setLoading(false);
+            } catch (err) {
+                console.error("Failed to load queue", err);
+                setLoading(false);
+            }
+        };
+
+        fetchPendingLoans();
+    }, []);
 
     return (
         <div className="admin-dashboard-page" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -70,9 +77,9 @@ const AdminDashboard = () => {
                         <div style={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 600 }}>Total Applications</div>
                         <div style={{ background: '#f1f5f9', padding: '0.5rem', borderRadius: '0.5rem', color: '#3b82f6' }}><Users size={20} /></div>
                     </div>
-                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#1e293b' }}>1,284</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#1e293b' }}>{stats.total.toLocaleString()}</div>
                     <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
-                        ↑ 12% from last week
+                        Live DB Sync Active
                     </div>
                 </div>
 
@@ -81,7 +88,7 @@ const AdminDashboard = () => {
                         <div style={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 600 }}>Pending in Queue</div>
                         <div style={{ background: '#fef3c7', padding: '0.5rem', borderRadius: '0.5rem', color: '#d97706' }}><Clock size={20} /></div>
                     </div>
-                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#1e293b' }}>24</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#1e293b' }}>{stats.pending.toLocaleString()}</div>
                     <div style={{ fontSize: '0.75rem', color: '#b45309', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
                         Requires underwriting action
                     </div>
@@ -92,7 +99,7 @@ const AdminDashboard = () => {
                         <div style={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 600 }}>Total Disbursed (MTD)</div>
                         <div style={{ background: '#ecfdf5', padding: '0.5rem', borderRadius: '0.5rem', color: '#10b981' }}><Banknote size={20} /></div>
                     </div>
-                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#1e293b' }}>₹42.5L</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#1e293b' }}>{formatCurrency(stats.disbursed)}</div>
                     <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
                         Acquired target: ₹40L
                     </div>
@@ -135,35 +142,35 @@ const AdminDashboard = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {mockApplications.map((app) => (
+                                {loading ? (
+                                    <tr><td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}>Loading Queue...</td></tr>
+                                ) : queue.length === 0 ? (
+                                    <tr><td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>No Pending Applications in Queue</td></tr>
+                                ) : queue.map((app) => (
                                     <tr key={app.id}>
                                         <td className="app-id">#{app.id}</td>
                                         <td>
-                                            <div className="app-name">{app.name}</div>
-                                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{app.date}</div>
+                                            <div className="app-name">{app.applicant?.fullName || 'Unknown Applicant'}</div>
+                                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{new Date(app.createdAt || Date.now()).toLocaleDateString()}</div>
                                         </td>
-                                        <td style={{ fontWeight: 600 }}>{formatCurrency(app.amount)}</td>
+                                        <td style={{ fontWeight: 600 }}>{formatCurrency(app.requestedAmount)}</td>
                                         <td>
                                             <span style={{
                                                 display: 'inline-block', padding: '0.15rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.75rem', fontWeight: 600,
-                                                background: app.cibil > 750 ? '#dcfce7' : '#f1f5f9', color: app.cibil > 750 ? '#166534' : '#475569'
+                                                background: '#dcfce7', color: '#166534'
                                             }}>
-                                                {app.cibil}
+                                                Good
                                             </span>
                                         </td>
                                         <td>
-                                            <span className={`status-badge ${app.status.toLowerCase()}`}>
-                                                {app.status}
+                                            <span className={`status-badge ${app.status?.toLowerCase() || 'pending'}`}>
+                                                {mapBackendStatus(app.status)}
                                             </span>
                                         </td>
                                         <td>
-                                            {app.status === 'Pending' ? (
-                                                <button className="review-btn" onClick={() => navigate(`/admin/review/${app.id}`)}>
-                                                    Review
-                                                </button>
-                                            ) : (
-                                                <span style={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600 }}>PROCESSED</span>
-                                            )}
+                                            <button className="review-btn" onClick={() => navigate(`/admin/review/${app.id}`)}>
+                                                Review
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -200,30 +207,36 @@ const AdminDashboard = () => {
                             <Activity size={20} color="#f59e0b" /> Audit Log
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                <div style={{ color: '#10b981', paddingTop: '2px' }}><CheckCircle2 size={16} /></div>
-                                <div>
-                                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#1e293b' }}>Manual Disbursal Authorized</div>
-                                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Admin user processed ₹4,50,000 for EZ-1041.</div>
-                                    <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.25rem' }}>Today, 09:12 AM</div>
+                            {queue.filter(app => app.status !== 'PENDING_ADMIN_REVIEW').slice(0, 5).map(app => (
+                                <div key={app.id} style={{ display: 'flex', gap: '1rem' }}>
+                                    <div style={{ color: app.status === 'APPROVED' ? '#10b981' : '#ef4444', paddingTop: '2px' }}>
+                                        {app.status === 'APPROVED' ? <CheckCircle2 size={16} /> : <ShieldAlert size={16} />}
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#1e293b' }}>
+                                            {app.status === 'APPROVED' ? 'Application Approved' : 'Application Rejected'}
+                                        </div>
+                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                                            {app.applicant?.fullName || 'User'} - {formatCurrency(app.approvedAmount || app.requestedAmount)}
+                                        </div>
+                                        <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.25rem' }}>
+                                            {new Date(app.updatedAt || app.createdAt).toLocaleString()}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                <div style={{ color: '#ef4444', paddingTop: '2px' }}><ShieldAlert size={16} /></div>
-                                <div>
-                                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#1e293b' }}>Automated Rejection</div>
-                                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>CIBIL dropped to 590 for EZ-1040, below threshold.</div>
-                                    <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.25rem' }}>Yesterday, 14:10 PM</div>
+                            ))}
+                            {queue.filter(app => app.status !== 'PENDING_ADMIN_REVIEW').length === 0 && (
+                                <div style={{ fontSize: '0.8rem', color: '#64748b', textAlign: 'center', padding: '1rem 0' }}>
+                                    No recent audit activities found.
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
 
                 </div>
             </div>
 
-        </div>
+        </div >
     );
 };
 

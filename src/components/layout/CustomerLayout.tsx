@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { triggerCustomAlert } from '../shared/CustomAlertModal';
 import {
     LayoutDashboard,
     User,
@@ -14,6 +15,16 @@ import './CustomerLayout.css';
 
 const CustomerLayout = () => {
     const navigate = useNavigate();
+
+    // Dynamic Application State
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{"fullName": "Guest User", "isKycVerified": false}');
+    const userFullName = storedUser.fullName || "Guest User";
+
+    const getInitials = (name: string) => {
+        const parts = name.split(' ');
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+        return name.slice(0, 2).toUpperCase();
+    };
 
     const handleLogout = () => {
         navigate('/');
@@ -57,7 +68,7 @@ const CustomerLayout = () => {
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <ShieldCheck size={18} />
-                            Get Verified
+                            {storedUser.isKycVerified ? "Verification Status" : "Get Verified"}
                         </NavLink>
 
                         <NavLink
@@ -76,7 +87,7 @@ const CustomerLayout = () => {
                             Loan History
                         </NavLink>
 
-                        <button className="sidebar-link" style={{ border: 'none', background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => alert('Support module initiated.')}>
+                        <button className="sidebar-link" style={{ border: 'none', background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => triggerCustomAlert('success', 'Support module initiated.', 'Support Requested')}>
                             <LifeBuoy size={18} />
                             Support
                         </button>
@@ -97,11 +108,13 @@ const CustomerLayout = () => {
                 <div className="sidebar-footer">
                     <div className="sidebar-user-info">
                         <div className="user-avatar-small">
-                            RS
+                            {getInitials(userFullName)}
                         </div>
                         <div className="user-details-small">
-                            <span className="user-name-small">Rahul Sharma</span>
-                            <span className="user-role-small">Verified Borrower</span>
+                            <span className="user-name-small">{userFullName}</span>
+                            <span className="user-role-small" style={{ color: storedUser.isKycVerified ? '#10b981' : '#f59e0b' }}>
+                                {storedUser.isKycVerified ? 'Verified Borrower' : 'Unverified Identity'}
+                            </span>
                         </div>
                     </div>
                     <button onClick={handleLogout} className="logout-icon-btn" title="Log out">

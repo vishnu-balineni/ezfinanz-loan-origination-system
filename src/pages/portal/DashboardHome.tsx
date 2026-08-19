@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Clock, CheckCircle2, ChevronRight,
@@ -6,6 +6,7 @@ import {
     Download, RefreshCcw, Headset,
     PiggyBank, Info
 } from 'lucide-react';
+import api from '../../services/api';
 import './DashboardHome.css';
 import './ProfileStyles.css'; // For the dark hero region
 
@@ -17,45 +18,93 @@ const formatCurrency = (value: number) => {
     }).format(value);
 };
 
+const mapBackendStatus = (status: string) => {
+    if (status === 'PENDING_ADMIN_REVIEW' || status === 'PENDING_KYC') return 'Pending Review';
+    if (status === 'APPROVED') return 'Approved & Disbursed';
+    if (status === 'REJECTED') return 'Rejected';
+    return status;
+};
+
 const DashboardHome = () => {
     const navigate = useNavigate();
+    // Dynamic Application State
+    const [loanDetails, setLoanDetails] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Toggle for Demo purposes
-    const [loanStatus, setLoanStatus] = useState<'pending' | 'active'>('active');
+    // Get Logged In User
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{"fullName": "Guest"}');
+    const firstName = storedUser.fullName ? storedUser.fullName.split(' ')[0] : 'Guest';
 
-    // Mock Payload for user
-    const user = {
-        name: "Rahul Sharma",
-        requestedAmount: 100000,
-        disbursedAmount: 100000,
-        tenure: 12,
-        interestRate: 12,
-        outstandingPrincipal: 65000,
-        emi: 8885
-    };
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            if (!storedUser.id) {
+                setIsLoading(false);
+                return;
+            }
+            try {
+                const response = await api.get(`/loans/my-loans/${storedUser.id}`);
+                const loans = response.data;
+                if (loans && loans.length > 0) {
+                    const currentLoan = loans[loans.length - 1];
+                    setLoanDetails(currentLoan);
+                    localStorage.setItem('currentLoanId', currentLoan.id.toString());
+                }
+            } catch (err) {
+                console.error("Failed to load loan data:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
+    const isVerified = storedUser.isKycVerified || false;
+    const loanStatus = loanDetails?.status === 'APPROVED' ? 'active' : 'pending';
+
+    if (isLoading) {
+        return <div style={{ padding: '2rem' }}>Loading your dashboard...</div>;
+    }
+
+    // Completely new user state with no loans whatsoever
+    if (!loanDetails) {
+        return (
+            <>
+                <div className="profile-header-card" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="header-user-info">
+                        <h2 className="header-user-name">Welcome aboard, {firstName}!</h2>
+                        <span className="header-user-role" style={{ color: '#94a3b8', fontWeight: 500, fontSize: '1rem', marginTop: '0.5rem' }}>
+                            Start your seamless digital lending journey today.
+                        </span>
+                    </div>
+                </div>
+
+                <div className="dash-card" style={{ padding: '3rem', textAlign: 'center' }}>
+                    <Wallet size={48} color="#94a3b8" style={{ margin: '0 auto 1.5rem auto' }} />
+                    <h3 style={{ fontSize: '1.25rem', color: '#1e293b', marginBottom: '0.75rem' }}>No Active Loans Found</h3>
+                    <p style={{ color: '#64748b', marginBottom: '2rem', maxWidth: '400px', margin: '0 auto 2rem auto' }}>
+                        You haven't requested any loans yet. Get verified and apply below to access customized funding instantly.
+                    </p>
+                    {isVerified ? (
+                        <button onClick={() => navigate('/dashboard/apply')} style={{ background: '#10b981', color: 'white', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' }}>
+                            Start Loan Application
+                        </button>
+                    ) : (
+                        <button onClick={() => navigate('/dashboard/verify')} style={{ background: '#f59e0b', color: 'white', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' }}>
+                            Complete Identity Verification first
+                        </button>
+                    )}
+                </div>
+            </>
+        )
+    }
 
     return (
         <>
-            {/* Demo Toggle Banner */}
-            <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 100, background: 'white', padding: '0.5rem', borderRadius: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', display: 'flex', gap: '0.5rem', border: '1px solid #e2e8f0' }}>
-                <button
-                    onClick={() => setLoanStatus('pending')}
-                    style={{ background: loanStatus === 'pending' ? '#eab308' : 'transparent', color: loanStatus === 'pending' ? 'white' : '#64748b', padding: '0.5rem 1rem', borderRadius: '1.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
-                >
-                    Pending View
-                </button>
-                <button
-                    onClick={() => setLoanStatus('active')}
-                    style={{ background: loanStatus === 'active' ? '#10b981' : 'transparent', color: loanStatus === 'active' ? 'white' : '#64748b', padding: '0.5rem 1rem', borderRadius: '1.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
-                >
-                    Active View
-                </button>
-            </div>
-
             {/* 1. Hero Region (Dark Navy Top Banner) */}
             <div className="profile-header-card" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div className="header-user-info">
-                    <h2 className="header-user-name">Welcome back, {user.name.split(' ')[0]}!</h2>
+                    <h2 className="header-user-name">Welcome back, {firstName}!</h2>
                     <span className="header-user-role" style={{ color: '#94a3b8', fontWeight: 500, fontSize: '1rem', marginTop: '0.5rem' }}>
                         Your central dashboard for managing active loans and applications.
                     </span>
@@ -97,7 +146,7 @@ const DashboardHome = () => {
 
                             <h3 style={{ fontSize: '1rem', color: '#94a3b8', margin: '0 0 0.5rem 0', fontWeight: 600 }}>Next EMI Payment Due</h3>
                             <div style={{ fontSize: '3.5rem', fontWeight: 800, margin: '0 0 1rem 0' }}>
-                                {formatCurrency(user.emi)}
+                                {formatCurrency(loanDetails?.approvedAmount ? Math.floor(loanDetails.approvedAmount * 0.08885) : 8885)}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', marginBottom: '2rem' }}>
                                 <Calendar size={18} /> Auto-debit scheduled for 05 Nov 2026
@@ -118,17 +167,22 @@ const DashboardHome = () => {
                                     </div>
                                 </div>
                                 <div className="timeline-step">
-                                    <div className="timeline-icon completed"><CheckCircle2 size={18} /></div>
-                                    <div className="timeline-content completed">
+                                    <div className={`timeline-icon ${isVerified ? 'completed' : 'pending'}`}>
+                                        {isVerified && <CheckCircle2 size={18} />}
+                                    </div>
+                                    <div className={`timeline-content ${isVerified ? 'completed' : ''}`}>
                                         <h4>Bank & KYC Verified</h4>
-                                        <p>Identity confirmed securely.</p>
+                                        <p>{isVerified ? 'Identity confirmed securely.' : 'Pending Identity Verification.'}</p>
                                     </div>
                                 </div>
                                 <div className="timeline-step">
-                                    <div className="timeline-icon current"><Clock size={16} /></div>
+                                    <div className={`timeline-icon ${loanDetails?.status === 'PENDING_ADMIN_REVIEW' ? 'current' : (loanDetails?.status === 'APPROVED' ? 'completed' : 'pending')}`}>
+                                        {loanDetails?.status === 'PENDING_ADMIN_REVIEW' && <Clock size={16} />}
+                                        {loanDetails?.status === 'APPROVED' && <CheckCircle2 size={18} />}
+                                    </div>
                                     <div className="timeline-content">
                                         <h4>Admin Review</h4>
-                                        <p>Currently verifying your profile.</p>
+                                        <p>{loanDetails?.status === 'REJECTED' ? 'Application was rejected.' : 'Currently verifying your profile.'}</p>
                                     </div>
                                 </div>
                                 <div className="timeline-step">
@@ -160,7 +214,7 @@ const DashboardHome = () => {
                                     {loanStatus === 'active' ? 'Total Disbursed' : 'Requested Amount'}
                                 </div>
                                 <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
-                                    {formatCurrency(loanStatus === 'active' ? user.disbursedAmount : user.requestedAmount)}
+                                    {formatCurrency(loanStatus === 'active' ? (loanDetails?.approvedAmount || 0) : (loanDetails?.requestedAmount || 0))}
                                 </div>
                             </div>
 
@@ -170,7 +224,7 @@ const DashboardHome = () => {
                                     {loanStatus === 'active' ? 'Total Tenure' : 'Preferred Tenure'}
                                 </div>
                                 <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
-                                    {user.tenure} Months
+                                    {loanDetails?.termMonths || 12} Months
                                 </div>
                             </div>
 
@@ -180,7 +234,7 @@ const DashboardHome = () => {
                                     {loanStatus === 'active' ? 'Fixed Interest Rate' : 'Expected APR'}
                                 </div>
                                 <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
-                                    {user.interestRate}% p.a.
+                                    12% p.a.
                                 </div>
                             </div>
 
@@ -190,7 +244,7 @@ const DashboardHome = () => {
                                     {loanStatus === 'active' ? 'Outstanding Principal' : 'Current Status'}
                                 </div>
                                 <div style={{ fontSize: '1.5rem', fontWeight: 700, color: loanStatus === 'active' ? '#065f46' : '#1e293b' }}>
-                                    {loanStatus === 'active' ? formatCurrency(user.outstandingPrincipal) : 'Pending Review'}
+                                    {loanStatus === 'active' ? formatCurrency(loanDetails?.approvedAmount ? loanDetails.approvedAmount * 0.9 : 0) : mapBackendStatus(loanDetails?.status || '')}
                                 </div>
                             </div>
                         </div>

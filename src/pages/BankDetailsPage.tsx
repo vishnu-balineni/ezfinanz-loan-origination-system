@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Banknote, Loader2, CheckCircle2, FileText, ArrowRight } from 'lucide-react';
 import TrustFooter from '../components/shared/TrustFooter';
+import { triggerCustomAlert } from '../components/shared/CustomAlertModal';
+import api from '../services/api';
 import './BankDetailsPage.css';
 
 interface BankDetailsProps {
@@ -31,18 +33,38 @@ const BankDetailsPage = ({ onComplete }: BankDetailsProps) => {
         setIfsc(val);
     };
 
-    // Penny Drop Simulation
-    const handleVerifyBank = (e: React.FormEvent) => {
+    // Connect to Verification Backend
+    const handleVerifyBank = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!isFormFilled) return;
 
         setIsVerifying(true);
 
-        // Simulate 2 second API call
-        setTimeout(() => {
+        try {
+            const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+            const userId = storedUser.id;
+
+            if (!userId) {
+                triggerCustomAlert('error', 'Session expired. Please log in again.', 'Unauthorized');
+                navigate('/');
+                return;
+            }
+
+            const payload = {
+                bankName,
+                accountNumber: accNumber,
+                ifscCode: ifsc,
+                accountHolderName: accName
+            };
+
+            await api.post(`/verification/${userId}/bank`, payload);
+
             setIsVerifying(false);
             setIsVerified(true);
-        }, 2000);
+        } catch (err) {
+            triggerCustomAlert('error', 'Failed to securely verify bank account. Please check details.', 'Bank Verification Failed');
+            setIsVerifying(false);
+        }
     };
 
     const handleFinalProceed = () => {

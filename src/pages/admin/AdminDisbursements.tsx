@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Banknote, CheckCircle2, ShieldCheck,
     ArrowRight, Wallet, Activity, RefreshCw
 } from 'lucide-react';
+import api from '../../services/api';
 import './AdminDashboard.css';
 
 // Mock data representing loans fully approved by underwriters and ready for bank transfer
@@ -41,9 +42,31 @@ const formatCurrency = (val: number) => {
 };
 
 const AdminDisbursements = () => {
-    // We maintain a list of completed transactions to simulate real-time UI updates
-    const [queue, setQueue] = useState(mockDisbursements);
+    const [queue, setQueue] = useState<any[]>([]);
     const [processingId, setProcessingId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchDisursables = async () => {
+            try {
+                const res = await api.get('/loans/admin/all');
+                // All approved applications are effectively pending disbursements conceptually for demo
+                const ready = res.data.filter((l: any) => l.status === 'APPROVED').map((app: any) => ({
+                    id: app.id.toString(),
+                    name: app.applicant?.fullName || 'Unknown',
+                    amount: app.approvedAmount || app.requestedAmount || 0,
+                    bank: "User Bank Account Connected",
+                    approvedBy: app.adminNotes || "System Admin",
+                    time: new Date(app.updatedAt || app.createdAt).toLocaleString(),
+                    status: "Ready"
+                }));
+                // Sort backwards
+                setQueue(ready.sort((a: any, b: any) => parseInt(b.id) - parseInt(a.id)));
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchDisursables();
+    }, []);
 
     const handleDisburse = (id: string) => {
         setProcessingId(id);
