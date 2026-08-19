@@ -1,5 +1,5 @@
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, User2, MapPin, Receipt, CheckCircle2 } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ShieldCheck, User2, MapPin, Receipt, CheckCircle2, ArrowLeft } from 'lucide-react';
 import './ApplicationReview.css';
 
 const ApplicationReview = () => {
@@ -53,7 +53,7 @@ const ApplicationReview = () => {
                     <h1>Review Application #{id}</h1>
                     <p>Cross-reference KYC and financial capability before disbursement.</p>
                 </div>
-                <Link to="/admin/dashboard" className="back-btn">Back to Dashboard</Link>
+                <button onClick={() => navigate(-1)} className="back-btn" style={{ background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><ArrowLeft size={16} /> Go Back</button>
             </div>
 
             <div className="review-grid">
