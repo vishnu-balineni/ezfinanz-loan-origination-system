@@ -77,15 +77,15 @@
 
 /* Current Step */
 .step-current .step-node {
-    background-color: #6366f1;
-    /* Indigo */
+    background-color: #047857;
+    /* Dark Emerald */
     color: white;
     /* Outer pulsing ring */
     animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .step-current .step-label {
-    color: #6366f1;
+    color: #047857;
 }
 
 /* Pending Future Step */
@@ -103,14 +103,14 @@
 /* Pulse animation mimicking tailwind's animate-pulse strictly via box shadow */
 @keyframes pulse-ring {
     0% {
-        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6);
+        box-shadow: 0 0 0 0 rgba(4, 120, 87, 0.6);
     }
 
     50% {
-        box-shadow: 0 0 0 8px rgba(99, 102, 241, 0.1);
+        box-shadow: 0 0 0 8px rgba(4, 120, 87, 0.1);
     }
 
     100% {
-        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+        box-shadow: 0 0 0 0 rgba(4, 120, 87, 0);
     }
 }

@@ -3,11 +3,12 @@ import './Stepper.css';
 
 interface StepperProps {
     currentStep: number;
+    steps?: string[];
 }
 
-const steps = ["Verify", "KYC", "Offers", "Bank", "Selfie"];
+const defaultSteps = ["Verify", "KYC", "Offers", "Bank", "Selfie"];
 
-export const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
+export const Stepper: React.FC<StepperProps> = ({ currentStep, steps = defaultSteps }) => {
 
     // Calculates percentage width ensuring it spreads perfectly across our absolute lines
     const progressWidth = `${((Math.min(currentStep, steps.length) - 1) / (steps.length - 1)) * 100}%`;

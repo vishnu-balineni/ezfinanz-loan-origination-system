@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Banknote, Loader2, CheckCircle2, FileText, ArrowRight } from 'lucide-react';
-import { Stepper } from '../components/Stepper';
 import TrustFooter from '../components/shared/TrustFooter';
 import './BankDetailsPage.css';
 
@@ -61,7 +60,6 @@ const BankDetailsPage = ({ onComplete }: BankDetailsProps) => {
             <div className="bank-card">
 
                 <div className="progress-header">
-                    <Stepper currentStep={4} />
                     <h1 className="progress-title">Disbursement Account</h1>
                 </div>
 

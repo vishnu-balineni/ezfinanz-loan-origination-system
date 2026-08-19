@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { Stepper } from '../components/Stepper';
 import TrustFooter from '../components/shared/TrustFooter';
 import './KycPage.css';
 
@@ -61,7 +60,6 @@ const KycPage = ({ onComplete }: KycProps) => {
             <div className="kyc-card">
 
                 <div className="progress-header">
-                    <Stepper currentStep={2} />
                     <h1 className="progress-title">KYC Details</h1>
                 </div>
 
@@ -174,7 +172,7 @@ const KycPage = ({ onComplete }: KycProps) => {
                 </form>
             </div>
             <TrustFooter />
-        </div>
+        </div >
     );
 };
 
