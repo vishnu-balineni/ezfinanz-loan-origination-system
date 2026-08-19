@@ -86,11 +86,12 @@ const AuthPage = () => {
             }
 
             try {
-                const endpoint = isLogin ? 'http://localhost:8080/api/auth/login' : 'http://localhost:8080/api/auth/register';
+                const baseURL = 'https://exfinanz-backend.onrender.com';
+                const endpoint = isLogin ? `${baseURL}/api/auth/login` : `${baseURL}/api/auth/register`;
 
                 const body = isLogin
                     ? { email, password }
-                    : { fullName, email, password, phone: phone }; // Pass the actual phone number!
+                    : { fullName, email, password, phone: phone };
 
                 const response = await fetch(endpoint, {
                     method: 'POST',
@@ -104,7 +105,7 @@ const AuthPage = () => {
                     throw new Error(data.error || 'Authentication failed');
                 }
 
-                triggerCustomAlert('success', data.message || 'Success!', 'Registration Complete');
+                triggerCustomAlert('success', data.message || 'Success!', isLogin ? 'Login Successful' : 'Registration Complete');
 
                 // Demo Logic: if email contains admin, elevate them to Admin Role locally
                 const finalRole = email.toLowerCase().includes('admin') ? 'ROLE_ADMIN' : data.role;
