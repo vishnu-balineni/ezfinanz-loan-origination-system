@@ -100,7 +100,7 @@ const SelfiePage = ({ onComplete }: SelfieProps) => {
             }
 
             // Fire finalizing verification endpoint matching our Backend VerificationService logic!
-            await api.post(`/verification/${userId}/finalize`, {});
+            await api.post(`/verification/${userId}/finalize`, { selfieImageBase64: capturedImage });
 
             // Update local context
             storedUser.isKycVerified = true;

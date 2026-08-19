@@ -209,7 +209,7 @@ const ApplicationReview = () => {
                     <div className="data-group">
                         <label>Live Selfie Capture ({loanData.applicant?.kycVerified ? "Verified User" : "Pending Review"})</label>
                         <div className="selfie-box">
-                            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=300&h=400" alt="Applicant Selfie" />
+                            <img src={loanData.applicant?.selfieImageBase64 || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=300&h=400"} alt="Applicant Selfie" />
                         </div>
                         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                             <button onClick={handleApproveSelfie} style={{ flex: 1, background: '#16a34a', color: 'white', padding: '0.5rem', border: 'none', borderRadius: '0.25rem', fontWeight: 600, cursor: 'pointer' }}>Approve Photo</button>
