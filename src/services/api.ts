@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8080/api', // Backend base URL
+    // Vercel UI will use the Live Render Backend. Local devs can optionally override this.
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'https://exfinanz-backend.onrender.com/api',
 });
 
 // Interceptor to attach auth token
