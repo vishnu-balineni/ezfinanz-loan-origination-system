@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
     Briefcase, Search, AlertTriangle,
-    CheckCircle2, ChevronRight, Activity, TrendingUp, HelpCircle
+    CheckCircle2, ChevronRight, Activity, TrendingUp, HelpCircle, X
 } from 'lucide-react';
 import './AdminDashboard.css';
 
@@ -59,6 +59,7 @@ const formatCurrency = (val: number) => {
 const AdminActiveLoans = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('All');
+    const [selectedLoan, setSelectedLoan] = useState<any>(null);
 
     const filteredLoans = mockActiveLoans.filter(loan => {
         const matchesSearch = loan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -95,7 +96,7 @@ const AdminActiveLoans = () => {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', position: 'relative' }}>
 
             {/* Header */}
             <div className="profile-header-card">
@@ -242,8 +243,8 @@ const AdminActiveLoans = () => {
                                         <td>
                                             <button
                                                 className="review-btn"
-                                                style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: '#f1f5f9', color: '#334155', border: '1px solid #e2e8f0' }}
-                                                onClick={() => alert('Opening Full Loan Statement...')}
+                                                style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: '#10b981', color: 'white', border: 'none' }}
+                                                onClick={() => setSelectedLoan(loan)}
                                             >
                                                 Details <ChevronRight size={14} />
                                             </button>
@@ -255,6 +256,74 @@ const AdminActiveLoans = () => {
                     )}
                 </div>
             </div>
+
+            {/* View Statement Modal UI */}
+            {selectedLoan && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(15, 23, 42, 0.75)', zIndex: 9999,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)'
+                }}>
+                    <div className="animate-fade-in" style={{
+                        background: 'white', borderRadius: '1rem', width: '100%', maxWidth: '600px',
+                        overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                    }}>
+                        <div style={{ background: '#0f172a', padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white' }}>
+                            <div>
+                                <h2 style={{ margin: 0, fontSize: '1.25rem', color: 'white' }}>{selectedLoan.name} - #{selectedLoan.id}</h2>
+                                <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.25rem' }}>Full Account Statement</div>
+                            </div>
+                            <button onClick={() => setSelectedLoan(null)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <div style={{ padding: '2rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid #e2e8f0' }}>
+                                <div>
+                                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Original Principal</div>
+                                    <div style={{ fontSize: '1.25rem', fontWeight: 600, color: '#1e293b' }}>{formatCurrency(selectedLoan.principal)}</div>
+                                </div>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Monthly EMI</div>
+                                    <div style={{ fontSize: '1.25rem', fontWeight: 600, color: '#1e293b' }}>{formatCurrency(selectedLoan.emi)}</div>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Outstanding Balance</div>
+                                    <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#10b981' }}>{formatCurrency(selectedLoan.outstanding)}</div>
+                                </div>
+                            </div>
+
+                            <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: '#1e293b' }}>Payment History</h3>
+                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.5rem', padding: '1rem' }}>
+                                {selectedLoan.paidMos === 0 ? (
+                                    <div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.9rem', padding: '1rem 0' }}>
+                                        No EMI payments have been scheduled or processed yet.
+                                    </div>
+                                ) : (
+                                    <>
+                                        {Array.from({ length: Math.min(selectedLoan.paidMos, 5) }).map((_, i) => {
+                                            const d = new Date(2026, 6 - i, 1); // Mock relative logic starting from July 2026
+                                            const monthYear = d.toLocaleString('default', { month: 'short', year: 'numeric' });
+                                            const isLast = i === Math.min(selectedLoan.paidMos, 5) - 1;
+                                            return (
+                                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: isLast ? 'none' : '1px solid #e2e8f0' }}>
+                                                    <span style={{ fontSize: '0.9rem', color: '#64748b' }}>{monthYear} EMI</span>
+                                                    <span style={{ fontSize: '0.9rem', color: '#10b981', fontWeight: 600 }}>Paid - {formatCurrency(selectedLoan.emi)}</span>
+                                                </div>
+                                            );
+                                        })}
+                                        {selectedLoan.paidMos > 5 && (
+                                            <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.8rem', color: '#3b82f6', cursor: 'pointer', fontWeight: 600 }}>
+                                                View {selectedLoan.paidMos - 5} older payments...
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
