@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShieldCheck, User2, MapPin, Receipt, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, User2, Receipt, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { triggerCustomAlert } from '../../components/shared/CustomAlertModal';
 import api from '../../services/api';
 import './ApplicationReview.css';

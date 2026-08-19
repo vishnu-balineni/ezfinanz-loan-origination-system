@@ -8,45 +8,7 @@ import {
 import api from '../../services/api';
 import './AdminDashboard.css';
 
-// Extended Mock Data for the Pending Queue
-const mockPendingQueue = [
-    {
-        id: "EZ-1045",
-        name: "Suresh Menon",
-        date: "Today, 09:12 AM",
-        issue: "Aadhaar Name Mismatch",
-        severity: "High",
-        slaState: "Breaching Soon",
-        amount: 250000
-    },
-    {
-        id: "EZ-1046",
-        name: "Vikram Singh",
-        date: "Yesterday, 14:30 PM",
-        issue: "Selfie Liveness Failed",
-        severity: "Critical",
-        slaState: "Breached",
-        amount: 500000
-    },
-    {
-        id: "EZ-1047",
-        name: "Meera Reddy",
-        date: "Today, 11:05 AM",
-        issue: "Bank Statement Blurred",
-        severity: "Medium",
-        slaState: "On Track",
-        amount: 50000
-    },
-    {
-        id: "EZ-1048",
-        name: "Akash Gupta",
-        date: "Today, 11:45 AM",
-        issue: "Manual Income Review",
-        severity: "Medium",
-        slaState: "On Track",
-        amount: 100000
-    }
-];
+// Removed unused mockPendingQueue
 
 const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);

@@ -45,7 +45,7 @@ const KycPage = ({ onComplete }: KycProps) => {
     // Validation
     const isFormValid =
         fullName.trim() !== '' &&
-        dob !== '' &&
+        dobDate !== null &&
         gender !== '' &&
         address.trim() !== '' &&
         panNumber.length === 10 &&

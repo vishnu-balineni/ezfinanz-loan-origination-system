@@ -6,52 +6,7 @@ import {
 import api from '../../services/api';
 import './AdminDashboard.css';
 
-const mockActiveLoans = [
-    {
-        id: "EZ-1002",
-        name: "Neha Gupta",
-        principal: 200000,
-        outstanding: 145000,
-        emi: 18200,
-        nextDueDate: "22 Aug 2026",
-        status: "Current",
-        tenure: "12 Mos",
-        paidMos: 4
-    },
-    {
-        id: "EZ-1015",
-        name: "Rahul Verma",
-        principal: 50000,
-        outstanding: 50000,
-        emi: 8885,
-        nextDueDate: "01 Sep 2026",
-        status: "Current",
-        tenure: "6 Mos",
-        paidMos: 0
-    },
-    {
-        id: "EZ-0994",
-        name: "Karan Singh",
-        principal: 500000,
-        outstanding: 420000,
-        emi: 17500,
-        nextDueDate: "15 Aug 2026",
-        status: "Delinquent",
-        tenure: "36 Mos",
-        paidMos: 6
-    },
-    {
-        id: "EZ-0980",
-        name: "Pooja Sharma",
-        principal: 100000,
-        outstanding: 0,
-        emi: 8500,
-        nextDueDate: "N/A",
-        status: "Closed",
-        tenure: "12 Mos",
-        paidMos: 12
-    }
-];
+// Removed unused mockActiveLoans
 
 const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);

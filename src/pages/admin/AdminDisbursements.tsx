@@ -6,36 +6,7 @@ import {
 import api from '../../services/api';
 import './AdminDashboard.css';
 
-// Mock data representing loans fully approved by underwriters and ready for bank transfer
-const mockDisbursements = [
-    {
-        id: "EZ-1049",
-        name: "Ravi Kumar",
-        amount: 250000,
-        bank: "HDFC Bank (**** 4567)",
-        approvedBy: "Admin_Sarah",
-        time: "10 mins ago",
-        status: "Ready"
-    },
-    {
-        id: "EZ-1050",
-        name: "Anita Desai",
-        amount: 50000,
-        bank: "ICICI Bank (**** 8901)",
-        approvedBy: "Admin_Rahul",
-        time: "1 hour ago",
-        status: "Ready"
-    },
-    {
-        id: "EZ-1033",
-        name: "Mohammad Ali",
-        amount: 500000,
-        bank: "SBI (**** 1122)",
-        approvedBy: "Auto-Underwritten",
-        time: "2 hours ago",
-        status: "Ready"
-    }
-];
+// Removed unused mockDisbursements
 
 const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
