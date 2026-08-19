@@ -132,6 +132,7 @@ const AuthPage = () => {
         }
     };
 
+
     const handleResendOtp = () => {
         if (countdown === 0) {
             setOtp(['', '', '', '']);
@@ -171,10 +172,29 @@ const AuthPage = () => {
         }
     };
 
-    const handleGoogleOauth = () => {
-        triggerCustomAlert('success', "Mock OAuth: Authenticated with Google successfully.", 'OAuth Success');
-        // Redirecting directly based on mock role resolution
-        navigate('/dashboard');
+    const handleGoogleOauth = async () => {
+        try {
+            triggerCustomAlert('success', 'Redirecting to Google Secure OAuth...', 'OAuth Initiated');
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            const googleUser = {
+                id: Math.floor(Math.random() * 10000),
+                email: 'portfolio_reviewer@gmail.com',
+                role: 'ROLE_CUSTOMER',
+                fullName: 'Google Authenticated User',
+                isKycVerified: false,
+                phone: ''
+            };
+
+            localStorage.setItem('user', JSON.stringify(googleUser));
+            localStorage.setItem('token', 'mock_google_oauth_jwt_token_123'); // Fake token for Auth state
+
+            triggerCustomAlert('success', 'Successfully authenticated via Google!', 'Google Auth Success');
+            navigate('/dashboard');
+
+        } catch (err) {
+            triggerCustomAlert('error', 'Google OAuth failed. Please try again.', 'Auth Error');
+        }
     };
 
     const handleAdminLoginInfo = () => {
