@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Phone, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck, Target } from 'lucide-react';
+import { Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Target } from 'lucide-react';
 import { triggerCustomAlert } from '../components/shared/CustomAlertModal';
 import './AuthPage.css';
 import { GoogleLogin } from '@react-oauth/google';
@@ -199,19 +199,8 @@ export default function AuthPage() {
 
                     <div className="auth-header-text">
                         <h2>{otpSent ? (isLogin ? 'Verify Login' : 'Verify Registration') : (isLogin ? 'Welcome Back' : 'Create Account')}</h2>
-                        <p>{otpSent ? 'A security code has been generated' : `Please enter your details to proceed.`}</p>
+                        <p>{otpSent ? 'A security code has been generated' : (isLogin ? 'Please enter your details to sign in.' : 'Please enter your details to register.')}</p>
                     </div>
-
-                    {!otpSent && (
-                        <div className="auth-main-toggle">
-                            <button onClick={() => { setIsLogin(true); setOtpSent(false); }} className={`auth-toggle-btn ${isLogin ? 'active' : 'inactive'}`}>
-                                Log In
-                            </button>
-                            <button onClick={() => { setIsLogin(false); setOtpSent(false); }} className={`auth-toggle-btn ${!isLogin ? 'active' : 'inactive'}`}>
-                                Sign Up
-                            </button>
-                        </div>
-                    )}
 
                     {!otpSent && (
                         <div className="auth-method-tabs animate-fade-in">
@@ -240,21 +229,19 @@ export default function AuthPage() {
                             {method === 'email' && (
                                 <>
                                     {!isLogin && (
-                                        <>
-                                            <div className="form-group">
-                                                <label>Full Name</label>
+                                        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                                            <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                                                 <div className="input-wrapper">
-                                                    <input type="text" required placeholder="John Doe" value={fullName} onChange={e => setFullName(e.target.value)} className="auth-input" />
+                                                    <input type="text" required placeholder="Full Name" value={fullName} onChange={e => setFullName(e.target.value)} className="auth-input" />
                                                 </div>
                                             </div>
-                                            <div className="form-group">
-                                                <label>Phone Number (Optional)</label>
+                                            <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                                                 <div className="input-wrapper">
-                                                    <Phone className="input-icon" size={18} />
-                                                    <input type="tel" placeholder="Mobile Number" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))} className="auth-input" />
+                                                    <Phone className="input-icon" size={16} />
+                                                    <input type="tel" placeholder="Mobile" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))} className="auth-input" />
                                                 </div>
                                             </div>
-                                        </>
+                                        </div>
                                     )}
                                     <div className="form-group">
                                         <label>Email Address</label>
@@ -283,12 +270,9 @@ export default function AuthPage() {
                                                     {strengthScore === 0 ? '' : strengthScore === 1 ? 'Weak' : strengthScore === 2 ? 'Fair' : 'Strong'}
                                                 </span>
                                             </div>
-                                            <div className="strength-bar-container">
+                                            <div className="strength-bar-container" style={{ marginBottom: 0 }}>
                                                 <div className="strength-bar" style={{ backgroundColor: strengthScore === 0 ? 'transparent' : strengthScore === 1 ? '#f87171' : strengthScore === 2 ? '#facc15' : '#10b981', width: `${(strengthScore / 3) * 100}%` }} />
                                             </div>
-                                            <div className="rule-item" style={{ color: hasMinLength ? '#10b981' : 'inherit' }}><CheckCircle2 size={14} color={hasMinLength ? '#10b981' : '#cbd5e1'} /> 8+ chars</div>
-                                            <div className="rule-item" style={{ color: hasNumber ? '#10b981' : 'inherit' }}><CheckCircle2 size={14} color={hasNumber ? '#10b981' : '#cbd5e1'} /> Contains number</div>
-                                            <div className="rule-item" style={{ color: hasSpecialChar ? '#10b981' : 'inherit' }}><CheckCircle2 size={14} color={hasSpecialChar ? '#10b981' : '#cbd5e1'} /> Special character</div>
                                         </div>
                                     )}
 
@@ -344,10 +328,16 @@ export default function AuthPage() {
                     )}
                 </div>
 
+                <div className="auth-mode-switch" style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.85rem' }}>
+                    {isLogin ? (
+                        <>Don't have an account? <button onClick={() => { setIsLogin(false); setOtpSent(false); }} style={{ background: 'none', border: 'none', color: '#10b981', fontWeight: 600, cursor: 'pointer' }}>Sign up</button></>
+                    ) : (
+                        <>Already have an account? <button onClick={() => { setIsLogin(true); setOtpSent(false); }} style={{ background: 'none', border: 'none', color: '#10b981', fontWeight: 600, cursor: 'pointer' }}>Log in</button></>
+                    )}
+                </div>
+
                 <div className="auth-footer">
-                    By proceeding, you agree to our <a href="#">Terms</a> and <a href="#">Privacy</a>.
-                    <br /><br />
-                    <button onClick={handleAdminLoginInfo} style={{ background: 'transparent', border: 'none', color: '#10b981', cursor: 'pointer' }}>Admin Dev Bypass ⚡</button>
+                    <button onClick={handleAdminLoginInfo} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>Admin Dev Bypass ⚡</button>
                 </div>
             </div>
         </div>
