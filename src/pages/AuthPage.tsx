@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Phone, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck, Fingerprint, Sparkles } from 'lucide-react';
 import { triggerCustomAlert } from '../components/shared/CustomAlertModal';
 import './AuthPage.css'; // Importing normal CSS
@@ -8,7 +8,12 @@ import { jwtDecode } from 'jwt-decode';
 
 const AuthPage = () => {
     const navigate = useNavigate();
-    const [isLogin, setIsLogin] = useState(false);
+    const location = useLocation();
+
+    // Check if Landing Page specified default tab 
+    const defaultIsLogin = location.state?.defaultIsLogin ?? true;
+
+    const [isLogin, setIsLogin] = useState(defaultIsLogin);
     const [method, setMethod] = useState<'email' | 'phone'>('email');
     const [isLoading, setIsLoading] = useState(false);
 
