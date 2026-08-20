@@ -188,3 +188,28 @@
 .btn-approve:hover {
     background: #059669;
 }
+
+@media (max-width: 768px) {
+    .review-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .review-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-sticky-footer {
+        left: 0;
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+    }
+}

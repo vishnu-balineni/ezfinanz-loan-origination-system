@@ -189,7 +189,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 30;
     display: none;
 }
@@ -201,23 +201,23 @@
         left: -260px;
         height: 100vh;
         transition: left 0.3s ease;
-        z-index: 40;
+        z-index: 999;
     }
-    
+
     .admin-sidebar.sidebar-open {
         left: 0;
     }
-    
+
     .mobile-header {
         display: flex;
     }
-    
+
     .mobile-close-btn {
         display: block;
     }
-    
+
     .sidebar-overlay {
         display: block;
+        z-index: 998;
     }
 }
-
