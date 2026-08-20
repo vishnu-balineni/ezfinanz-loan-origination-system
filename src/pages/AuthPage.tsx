@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Phone, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck, Fingerprint, Sparkles } from 'lucide-react';
+import { Mail, Phone, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck, Target } from 'lucide-react';
 import { triggerCustomAlert } from '../components/shared/CustomAlertModal';
-import './AuthPage.css'; // Importing normal CSS
+import './AuthPage.css';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 
-const AuthPage = () => {
+export default function AuthPage() {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -17,171 +17,107 @@ const AuthPage = () => {
     const [method, setMethod] = useState<'email' | 'phone'>('email');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Email form states
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-
-    // Phone form states
     const [phone, setPhone] = useState('');
+    const [fullName, setFullName] = useState('');
 
-    // Shared OTP states for Phone login 
     const [otpSent, setOtpSent] = useState(false);
     const [otp, setOtp] = useState(['', '', '', '']);
     const [countdown, setCountdown] = useState(0);
 
-    // Added fullName for Registration
-    const [fullName, setFullName] = useState('');
-
-    // Checks for password strength
     const hasMinLength = password.length >= 8;
     const hasNumber = /\d/.test(password);
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
     const strengthScore = [hasMinLength, hasNumber, hasSpecialChar].filter(Boolean).length;
 
-    const getStrengthColor = () => {
-        if (strengthScore === 0) return '#e2e8f0';
-        if (strengthScore === 1) return '#f87171';
-        if (strengthScore === 2) return '#facc15';
-        return '#10b981';
-    };
-
-    const getStrengthBadgeClass = () => {
-        if (strengthScore === 0) return '';
-        if (strengthScore === 1) return 'strength-weak';
-        if (strengthScore === 2) return 'strength-fair';
-        return 'strength-strong';
-    };
-
-    const getStrengthText = () => {
-        if (strengthScore === 0) return '';
-        if (strengthScore === 1) return 'Weak';
-        if (strengthScore === 2) return 'Fair';
-        return 'Strong';
-    };
-
-    // Timer logic for OTP
     useEffect(() => {
         let timer: number;
         if (countdown > 0) {
-            timer = window.setInterval(() => {
-                setCountdown((c) => c - 1);
-            }, 1000);
+            timer = window.setInterval(() => setCountdown((c) => c - 1), 1000);
         }
         return () => window.clearInterval(timer);
     }, [countdown]);
 
-    // API Call to Spring Boot
-    const handleAuthSubmit = async (e: React.FormEvent) => {
+    // Stage 1: Validate Inputs & Trigger OTP Simulation
+    const handleInitialSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (isLoading) return; // Prevent double clicks!
 
         if (method === 'phone') {
             if (phone.length === 10) {
                 setOtpSent(true);
                 setCountdown(30);
-                triggerCustomAlert('success', `Mock Notice: Phone OTP sent to +91 ${phone}`, 'OTP Sent');
+                triggerCustomAlert('success', `Simulated Security: Phone OTP sent to +91 ${phone}`, 'OTP Sent');
             }
             return;
         }
 
-        // --- EMAIL LOGIN / SIGNUP ---
-        if (method === 'email' && email.length > 0) {
-
+        if (method === 'email') {
             if (!isLogin && strengthScore < 3) {
-                triggerCustomAlert('error', "Please meet all password requirements before proceeding.", 'Weak Password');
+                triggerCustomAlert('error', "Please meet all password requirements.", 'Weak Password');
                 return;
             }
-
-            try {
-                setIsLoading(true);
-                const baseURL = 'https://exfinanz-backend.onrender.com';
-                const endpoint = isLogin ? `${baseURL}/api/auth/login` : `${baseURL}/api/auth/register`;
-
-                const body = isLogin
-                    ? { email, password }
-                    : { fullName, email, password, phone: phone };
-
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Authentication failed');
-                }
-
-                triggerCustomAlert('success', data.message || 'Success!', isLogin ? 'Login Successful' : 'Registration Complete');
-
-                // Demo Logic: if email contains admin, elevate them to Admin Role locally
-                const finalRole = email.toLowerCase().includes('admin') ? 'ROLE_ADMIN' : data.role;
-
-                // Save user info to simulate session
-                localStorage.setItem('user', JSON.stringify({
-                    id: data.userId,
-                    email: data.email,
-                    role: finalRole,
-                    fullName: data.fullName || 'User',
-                    isKycVerified: data.isKycVerified || false,
-                    phone: data.phone || ''
-                }));
-
-                if (finalRole === 'ROLE_ADMIN') {
-                    navigate('/admin/dashboard');
-                } else {
-                    navigate('/dashboard');
-                }
-
-            } catch (err: any) {
-                triggerCustomAlert('error', err.response?.data?.error || err.message, 'Registration Failed');
-            } finally {
-                setIsLoading(false);
-            }
-        }
-    };
-
-
-    const handleResendOtp = () => {
-        if (countdown === 0) {
-            setOtp(['', '', '', '']);
+            setOtpSent(true);
             setCountdown(30);
-            const target = method === 'phone' ? `+91 ${phone}` : email;
-            triggerCustomAlert('success', `Mock Backend Notice: RE-Sending verification OTP to ${target}`, 'OTP Resent');
+            triggerCustomAlert('success', `Simulated Security: Email verification OTP sent to ${email}`, 'OTP Sent');
         }
     };
 
-    const handleOtpChange = (index: number, val: string) => {
-        if (!/^\d*$/.test(val)) return;
-        const digit = val.slice(-1);
+    // Stage 2: Verification complete, execute backend comms
+    const handleVerifyOtp = async () => {
+        if (otp.join('').length < 4) return;
 
-        const newOtp = [...otp];
-        newOtp[index] = digit;
-        setOtp(newOtp);
-
-        // Auto Advance
-        if (digit && index < 3) {
-            const nextEl = document.getElementById(`otp-input-${index + 1}`);
-            nextEl?.focus();
-        }
-    };
-
-    const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Backspace' && !otp[index] && index > 0) {
-            const prevEl = document.getElementById(`otp-input-${index - 1}`);
-            prevEl?.focus();
-        }
-    };
-
-    const handleVerifyOtp = () => {
-        // Here we mock verifying the OTP with the backend API
-        if (otp.join('').length === 4) {
+        // Mock verification success
+        if (method === 'phone') {
             triggerCustomAlert('success', "Verification successful!", 'OTP Verified');
-            navigate('/dashboard');
+            navigate('/dashboard'); // Mock flow for just phone
+            return;
+        }
+
+        // Email OTP is purely a UI security simulation, proceed with backend credentials POST
+        try {
+            setIsLoading(true);
+            const baseURL = 'https://exfinanz-backend.onrender.com';
+            const endpoint = isLogin ? `${baseURL}/api/auth/login` : `${baseURL}/api/auth/register`;
+
+            const body = isLogin
+                ? { email, password }
+                : { fullName, email, password, phone: phone };
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Authentication failed');
+
+            triggerCustomAlert('success', data.message || 'Success!', isLogin ? 'Login Successful' : 'Account Created');
+
+            const finalRole = email.toLowerCase().includes('admin') ? 'ROLE_ADMIN' : data.role;
+            localStorage.setItem('user', JSON.stringify({
+                id: data.userId,
+                email: data.email,
+                role: finalRole,
+                fullName: data.fullName || 'User',
+                isKycVerified: data.isKycVerified || false,
+                phone: data.phone || ''
+            }));
+
+            if (finalRole === 'ROLE_ADMIN') {
+                navigate('/admin/dashboard');
+            } else {
+                navigate('/dashboard');
+            }
+
+        } catch (err: any) {
+            triggerCustomAlert('error', err.response?.data?.error || err.message, 'Operation Failed');
+            setOtpSent(false); // Reset to allow them to correct email/password
+            setOtp(['', '', '', '']);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -190,7 +126,7 @@ const AuthPage = () => {
         try {
             setIsLoading(true);
             const decoded: any = jwtDecode(credentialResponse.credential);
-            triggerCustomAlert('success', `Google Auth Verified for ${decoded.email}. Provisioning Account...`, 'OAuth Success');
+            triggerCustomAlert('success', `Google Auth Verified for ${decoded.email}. Provisioning Account...`, 'Authenticating');
 
             const response = await fetch(`https://exfinanz-backend.onrender.com/api/auth/google`, {
                 method: 'POST',
@@ -209,9 +145,7 @@ const AuthPage = () => {
                 isKycVerified: data.isKycVerified,
                 phone: data.phone || ''
             }));
-
             navigate('/dashboard');
-
         } catch (err: any) {
             triggerCustomAlert('error', err.message, 'Google Auth Error');
         } finally {
@@ -230,116 +164,69 @@ const AuthPage = () => {
         setOtp(['', '', '', '']);
     };
 
-    const renderPasswordRules = () => (
-        <div className="password-rules">
-            <div className="rules-header">
-                <span>Password strength</span>
-                <span className={`strength-badge ${getStrengthBadgeClass()}`}>
-                    {getStrengthText()}
-                </span>
-            </div>
-            <div className="strength-bar-container">
-                <div
-                    className="strength-bar"
-                    style={{
-                        backgroundColor: getStrengthColor(),
-                        width: strengthScore === 1 ? '33.33%' : strengthScore === 2 ? '66.66%' : strengthScore === 3 ? '100%' : '0'
-                    }}
-                />
-            </div>
-            <div className="rule-item" style={{ color: hasMinLength ? '#059669' : 'inherit' }}>
-                <CheckCircle2 size={16} color={hasMinLength ? '#059669' : '#cbd5e1'} />
-                <span>At least 8 characters</span>
-            </div>
-            <div className="rule-item" style={{ color: hasNumber ? '#059669' : 'inherit' }}>
-                <CheckCircle2 size={16} color={hasNumber ? '#059669' : '#cbd5e1'} />
-                <span>Contains at least one number</span>
-            </div>
-            <div className="rule-item" style={{ color: hasSpecialChar ? '#059669' : 'inherit' }}>
-                <CheckCircle2 size={16} color={hasSpecialChar ? '#059669' : '#cbd5e1'} />
-                <span>Contains at least one special character</span>
-            </div>
-        </div>
-    );
+    const handleOtpChange = (index: number, val: string) => {
+        if (!/^\d*$/.test(val)) return;
+        const digit = val.slice(-1);
+        const newOtp = [...otp];
+        newOtp[index] = digit;
+        setOtp(newOtp);
+
+        if (digit && index < 3) {
+            document.getElementById(`otp-input-${index + 1}`)?.focus();
+        }
+    };
+
+    const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Backspace' && !otp[index] && index > 0) {
+            document.getElementById(`otp-input-${index - 1}`)?.focus();
+        }
+    };
 
     return (
         <div className="auth-page-container">
-            {/* Background ambient glows */}
-            <div className="auth-ambient-glow-1" />
-            <div className="auth-ambient-glow-2" />
-
-            <div className="auth-content-wrapper">
-
-                {/* Brand Header */}
-                <div className="auth-brand-header">
-                    <div className="auth-logo-box">
-                        <Sparkles size={28} />
-                    </div>
-                    <h1 className="auth-title">
-                        EZFINANZ LOS
-                    </h1>
-                    <p className="auth-subtitle">The next generation loan platform.</p>
+            {/* Split Screen Left Graphic Panel */}
+            <div className="auth-brand-panel">
+                <div className="auth-brand-icon">
+                    <Target size={32} color="white" />
                 </div>
+                <h1 className="auth-brand-title">Secure & Instant <br />Loan Processing.</h1>
+                <p className="auth-brand-subtitle">Everything you need to apply, verify, and secure funding—packaged into an incredibly seamless platform.</p>
+            </div>
 
-                {/* Card Container */}
-                <div className="auth-card">
+            {/* Split Screen Right Form Panel */}
+            <div className="auth-form-panel">
+                <div className="auth-content-wrapper">
 
-                    {/* Main Toggle (Login vs Signup) */}
-                    <div className="auth-main-toggle">
-                        <button
-                            onClick={() => { setIsLogin(true); setOtpSent(false); }}
-                            className={`auth-toggle-btn ${isLogin ? 'active' : 'inactive'}`}
-                        >
-                            Log In
-                        </button>
-                        <button
-                            onClick={() => { setIsLogin(false); setOtpSent(false); }}
-                            className={`auth-toggle-btn ${!isLogin ? 'active' : 'inactive'}`}
-                        >
-                            Sign Up
-                        </button>
+                    <div className="auth-header-text">
+                        <h2>{otpSent ? (isLogin ? 'Verify Login' : 'Verify Registration') : (isLogin ? 'Welcome Back' : 'Create Account')}</h2>
+                        <p>{otpSent ? 'A security code has been generated' : `Please enter your details to proceed.`}</p>
                     </div>
 
                     {!otpSent && (
-                        <div className="auth-header-text animate-fade-in">
-                            <h2>
-                                {isLogin ? 'Welcome back' : 'Create an account'}
-                            </h2>
-                            <p>
-                                {isLogin
-                                    ? 'Enter your details to access your dashboard.'
-                                    : 'Sign up to start your loan application process.'}
-                            </p>
+                        <div className="auth-main-toggle">
+                            <button onClick={() => { setIsLogin(true); setOtpSent(false); }} className={`auth-toggle-btn ${isLogin ? 'active' : 'inactive'}`}>
+                                Log In
+                            </button>
+                            <button onClick={() => { setIsLogin(false); setOtpSent(false); }} className={`auth-toggle-btn ${!isLogin ? 'active' : 'inactive'}`}>
+                                Sign Up
+                            </button>
                         </div>
                     )}
 
-                    {/* Secondary Tab Control (Email vs Phone) */}
                     {!otpSent && (
                         <div className="auth-method-tabs animate-fade-in">
-                            <button
-                                onClick={() => switchMethod('email')}
-                                className={`auth-tab-btn ${method === 'email' ? 'active' : ''}`}
-                            >
-                                <Mail size={16} />
-                                Email
+                            <button onClick={() => switchMethod('email')} className={`auth-tab-btn ${method === 'email' ? 'active' : ''}`}>
+                                <Mail size={16} /> Email
                             </button>
-                            <button
-                                onClick={() => switchMethod('phone')}
-                                className={`auth-tab-btn ${method === 'phone' ? 'active' : ''}`}
-                            >
-                                <Phone size={16} />
-                                Phone Number
+                            <button onClick={() => switchMethod('phone')} className={`auth-tab-btn ${method === 'phone' ? 'active' : ''}`}>
+                                <Phone size={16} /> Mobile
                             </button>
                         </div>
                     )}
 
                     {!otpSent && (
-                        <div className="auth-social-mock" style={{ margin: '1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            <GoogleLogin
-                                onSuccess={handleGoogleOauthResponse}
-                                onError={() => triggerCustomAlert('error', 'Google Login Failed.', 'Wait')}
-                                useOneTap
-                            />
+                        <div className="animate-fade-in" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            <GoogleLogin onSuccess={handleGoogleOauthResponse} onError={() => triggerCustomAlert('error', 'Google Login Failed.', 'Wait')} useOneTap />
                             <div style={{ display: 'flex', alignItems: 'center', margin: '0.5rem 0' }}>
                                 <div style={{ flex: 1, height: '1px', background: '#cbd5e1' }}></div>
                                 <span style={{ padding: '0 0.5rem', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600 }}>OR</span>
@@ -348,196 +235,121 @@ const AuthPage = () => {
                         </div>
                     )}
 
-                    {/* Forms */}
-                    <div className="animate-fade-in">
-
-                        {!otpSent ? (
-                            <form onSubmit={handleAuthSubmit}>
-                                {method === 'email' && (
-                                    <>
-                                        {!isLogin && (
-                                            <>
-                                                <div className="form-group">
-                                                    <label>Full Name</label>
-                                                    <div className="input-wrapper">
-                                                        <input
-                                                            type="text"
-                                                            required
-                                                            placeholder="John Doe"
-                                                            value={fullName}
-                                                            onChange={e => setFullName(e.target.value)}
-                                                            className="auth-input"
-                                                        />
-                                                    </div>
+                    {!otpSent ? (
+                        <form onSubmit={handleInitialSubmit} className="animate-fade-in">
+                            {method === 'email' && (
+                                <>
+                                    {!isLogin && (
+                                        <>
+                                            <div className="form-group">
+                                                <label>Full Name</label>
+                                                <div className="input-wrapper">
+                                                    <input type="text" required placeholder="John Doe" value={fullName} onChange={e => setFullName(e.target.value)} className="auth-input" />
                                                 </div>
-                                                <div className="form-group">
-                                                    <label>Phone Number</label>
-                                                    <div className="input-wrapper">
-                                                        <Phone className="input-icon" size={20} />
-                                                        <input
-                                                            type="tel"
-                                                            required
-                                                            placeholder="Enter 10-digit number"
-                                                            value={phone}
-                                                            onChange={e => {
-                                                                const val = e.target.value.replace(/\D/g, '');
-                                                                if (val.length <= 10) setPhone(val);
-                                                            }}
-                                                            className="auth-input"
-                                                        />
-                                                    </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Phone Number (Optional)</label>
+                                                <div className="input-wrapper">
+                                                    <Phone className="input-icon" size={18} />
+                                                    <input type="tel" placeholder="Mobile Number" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))} className="auth-input" />
                                                 </div>
-                                            </>
-                                        )}
-                                        <div className="form-group">
-                                            <label>Email Address</label>
-                                            <div className="input-wrapper">
-                                                <Mail className="input-icon" size={20} />
-                                                <input
-                                                    type="email"
-                                                    required
-                                                    placeholder="you@example.com"
-                                                    value={email}
-                                                    onChange={e => setEmail(e.target.value)}
-                                                    className="auth-input"
-                                                />
                                             </div>
-                                        </div>
-
-                                        <div className="form-group">
-                                            <label>Password</label>
-                                            <div className="input-wrapper">
-                                                <Lock className="input-icon" size={20} />
-                                                <input
-                                                    type={showPassword ? 'text' : 'password'}
-                                                    required
-                                                    value={password}
-                                                    onChange={e => setPassword(e.target.value)}
-                                                    placeholder="••••••••"
-                                                    className="auth-input"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowPassword(!showPassword)}
-                                                    className="password-toggle"
-                                                >
-                                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        {!isLogin && renderPasswordRules()}
-
-                                        {isLogin && (
-                                            <div className="forgot-password">
-                                                <button type="button">Forgot password?</button>
-                                            </div>
-                                        )}
-                                    </>
-                                )}
-
-                                {method === 'phone' && (
+                                        </>
+                                    )}
                                     <div className="form-group">
-                                        <label>Phone Number</label>
+                                        <label>Email Address</label>
                                         <div className="input-wrapper">
-                                            <Phone className="input-icon" size={20} />
-                                            <input
-                                                type="tel"
-                                                required
-                                                value={phone}
-                                                onChange={e => {
-                                                    const val = e.target.value.replace(/\D/g, '');
-                                                    if (val.length <= 10) setPhone(val);
-                                                }}
-                                                placeholder="Enter 10-digit number"
-                                                className="auth-input"
-                                            />
+                                            <Mail className="input-icon" size={18} />
+                                            <input type="email" required placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} className="auth-input" />
                                         </div>
                                     </div>
-                                )}
 
-                                <button
-                                    type="submit"
-                                    className="auth-submit-btn"
-                                    disabled={isLoading || (method === 'phone' && phone.length < 10)}
-                                >
-                                    {isLoading ? 'Processing...' : isLogin ? (method === 'email' ? 'Sign In' : 'Send OTP') : (method === 'email' ? 'Create Account' : 'Send Verification OTP')}
-                                    {!isLoading && <ArrowRight size={18} />}
-                                </button>
-                            </form>
-                        ) : (
-                            <div className="otp-verification animate-fade-in">
-                                <div className="otp-icon-container">
-                                    <Fingerprint size={24} />
+                                    <div className="form-group">
+                                        <label>Password</label>
+                                        <div className="input-wrapper">
+                                            <Lock className="input-icon" size={18} />
+                                            <input type={showPassword ? 'text' : 'password'} required value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="auth-input" />
+                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="password-toggle">
+                                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {!isLogin && (
+                                        <div className="password-rules">
+                                            <div className="rules-header">
+                                                <span>Strength</span>
+                                                <span className={strengthScore === 0 ? '' : strengthScore === 1 ? 'strength-badge strength-weak' : strengthScore === 2 ? 'strength-badge strength-fair' : 'strength-badge strength-strong'}>
+                                                    {strengthScore === 0 ? '' : strengthScore === 1 ? 'Weak' : strengthScore === 2 ? 'Fair' : 'Strong'}
+                                                </span>
+                                            </div>
+                                            <div className="strength-bar-container">
+                                                <div className="strength-bar" style={{ backgroundColor: strengthScore === 0 ? 'transparent' : strengthScore === 1 ? '#f87171' : strengthScore === 2 ? '#facc15' : '#10b981', width: `${(strengthScore / 3) * 100}%` }} />
+                                            </div>
+                                            <div className="rule-item" style={{ color: hasMinLength ? '#10b981' : 'inherit' }}><CheckCircle2 size={14} color={hasMinLength ? '#10b981' : '#cbd5e1'} /> 8+ chars</div>
+                                            <div className="rule-item" style={{ color: hasNumber ? '#10b981' : 'inherit' }}><CheckCircle2 size={14} color={hasNumber ? '#10b981' : '#cbd5e1'} /> Contains number</div>
+                                            <div className="rule-item" style={{ color: hasSpecialChar ? '#10b981' : 'inherit' }}><CheckCircle2 size={14} color={hasSpecialChar ? '#10b981' : '#cbd5e1'} /> Special character</div>
+                                        </div>
+                                    )}
+
+                                    {isLogin && (
+                                        <div className="forgot-password">
+                                            <button type="button">Forgot password?</button>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            {method === 'phone' && (
+                                <div className="form-group">
+                                    <label>Mobile Number</label>
+                                    <div className="input-wrapper">
+                                        <Phone className="input-icon" size={18} />
+                                        <input type="tel" required value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))} placeholder="Enter 10-digit number" className="auth-input" />
+                                    </div>
                                 </div>
-                                <h3>Verify your {method}</h3>
-                                <p>
-                                    We sent a code to <strong>{method === 'phone' ? `+91 ${phone}` : email}</strong>
-                                </p>
-                                <button
-                                    type="button"
-                                    onClick={() => setOtpSent(false)}
-                                    className="change-number-btn"
-                                >
-                                    Change {method}
-                                </button>
+                            )}
 
-                                <div className="otp-inputs">
-                                    {otp.map((digit, i) => (
-                                        <input
-                                            key={i}
-                                            id={`otp-input-${i}`}
-                                            type="text"
-                                            inputMode="numeric"
-                                            value={digit}
-                                            onChange={(e) => handleOtpChange(i, e.target.value)}
-                                            onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                                            className="otp-input"
-                                            maxLength={1}
-                                        />
-                                    ))}
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={handleResendOtp}
-                                    disabled={countdown > 0}
-                                    className="resend-btn"
-                                >
-                                    {countdown > 0
-                                        ? `Resend in 00:${countdown.toString().padStart(2, '0')}`
-                                        : 'Didn\'t receive code? Resend'}
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={handleVerifyOtp}
-                                    disabled={otp.join('').length < 4}
-                                    className="auth-submit-btn"
-                                >
-                                    <ShieldCheck size={18} />
-                                    Verify & Proceed
-                                </button>
+                            <button type="submit" className="auth-submit-btn" disabled={method === 'phone' && phone.length < 10}>
+                                {isLogin ? 'Sign In Securely' : 'Continue to Register'}
+                                <ArrowRight size={18} />
+                            </button>
+                        </form>
+                    ) : (
+                        <div className="otp-verification animate-fade-in">
+                            <div className="otp-icon-container">
+                                <ShieldCheck size={28} />
                             </div>
-                        )}
-                    </div>
+                            <h3>Security Check</h3>
+                            <p>We've sent a 4-digit code to <strong>{method === 'phone' ? `+91 ${phone}` : email}</strong>.</p>
+
+                            <button type="button" onClick={() => setOtpSent(false)} className="change-number-btn">
+                                Change {method}
+                            </button>
+
+                            <div className="otp-inputs">
+                                {otp.map((digit, i) => (
+                                    <input key={i} id={`otp-input-${i}`} type="text" inputMode="numeric" value={digit} onChange={(e) => handleOtpChange(i, e.target.value)} onKeyDown={(e) => handleOtpKeyDown(i, e)} className="otp-input" maxLength={1} />
+                                ))}
+                            </div>
+
+                            <button type="button" onClick={() => { setOtp(['', '', '', '']); setCountdown(30); triggerCustomAlert('success', `OTP Resent to ${method === 'phone' ? phone : email}`, 'OTP Sent'); }} disabled={countdown > 0} className="resend-btn">
+                                {countdown > 0 ? `Resend code in 00:${countdown.toString().padStart(2, '0')}` : 'Didn\'t receive it? Resend.'}
+                            </button>
+
+                            <button type="button" onClick={handleVerifyOtp} disabled={otp.join('').length < 4 || isLoading} className="auth-submit-btn">
+                                {isLoading ? 'Processing...' : 'Verify & Proceed'}
+                            </button>
+                        </div>
+                    )}
                 </div>
 
-                <div className="auth-footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'center' }}>
-                    <div>
-                        By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-                    </div>
-                    <button
-                        onClick={handleAdminLoginInfo}
-                        style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.7rem', cursor: 'pointer' }}
-                    >
-                        Simulate Admin Login
-                    </button>
+                <div className="auth-footer">
+                    By proceeding, you agree to our <a href="#">Terms</a> and <a href="#">Privacy</a>.
+                    <br /><br />
+                    <button onClick={handleAdminLoginInfo} style={{ background: 'transparent', border: 'none', color: '#10b981', cursor: 'pointer' }}>Admin Dev Bypass ⚡</button>
                 </div>
-
             </div>
         </div>
     );
-};
-
-export default AuthPage;
+}
