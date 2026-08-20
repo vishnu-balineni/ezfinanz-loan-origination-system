@@ -55,6 +55,7 @@ const AdminLayout = () => {
                         <NavLink
                             to="/admin/dashboard"
                             end
+                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
                         >
                             <Users size={18} />
@@ -63,6 +64,7 @@ const AdminLayout = () => {
 
                         <NavLink
                             to="/admin/pending"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
                         >
                             <FileSearch size={18} />
@@ -75,6 +77,7 @@ const AdminLayout = () => {
 
                         <NavLink
                             to="/admin/active-loans"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
                         >
                             <Briefcase size={18} />
@@ -83,6 +86,7 @@ const AdminLayout = () => {
 
                         <NavLink
                             to="/admin/disbursements"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
                         >
                             <Banknote size={18} />
@@ -94,6 +98,7 @@ const AdminLayout = () => {
                 <div className="admin-sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <NavLink
                         to="/admin/profile"
+                        onClick={() => setIsSidebarOpen(false)}
                         className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
                         style={{ justifyContent: 'center' }}
                     >

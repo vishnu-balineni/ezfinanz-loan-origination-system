@@ -67,6 +67,7 @@ const CustomerLayout = () => {
                         <NavLink
                             to="/dashboard"
                             end
+                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <LayoutDashboard size={18} />
@@ -75,6 +76,7 @@ const CustomerLayout = () => {
 
                         <NavLink
                             to="/dashboard/apply"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <PlusCircle size={18} />
@@ -83,6 +85,7 @@ const CustomerLayout = () => {
 
                         <NavLink
                             to="/dashboard/verify"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <ShieldCheck size={18} />
@@ -91,6 +94,7 @@ const CustomerLayout = () => {
 
                         <NavLink
                             to="/dashboard/documents"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <FileText size={18} />
@@ -99,13 +103,14 @@ const CustomerLayout = () => {
 
                         <NavLink
                             to="/dashboard/history"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <History size={18} />
                             Loan History
                         </NavLink>
 
-                        <button className="sidebar-link" style={{ border: 'none', background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => triggerCustomAlert('success', 'Support module initiated.', 'Support Requested')}>
+                        <button className="sidebar-link" style={{ border: 'none', background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => { setIsSidebarOpen(false); triggerCustomAlert('success', 'Support module initiated.', 'Support Requested'); }}>
                             <LifeBuoy size={18} />
                             Support
                         </button>
@@ -115,6 +120,7 @@ const CustomerLayout = () => {
                         <div className="nav-label">Settings</div>
                         <NavLink
                             to="/dashboard/profile"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <User size={18} />
