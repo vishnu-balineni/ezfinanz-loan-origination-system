@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { triggerCustomAlert } from '../shared/CustomAlertModal';
 import {
     LayoutDashboard,
@@ -9,12 +10,15 @@ import {
     Target,
     ShieldCheck,
     PlusCircle,
-    History
+    History,
+    Menu,
+    X
 } from 'lucide-react';
 import './CustomerLayout.css';
 
 const CustomerLayout = () => {
     const navigate = useNavigate();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // Dynamic Application State
     const storedUser = JSON.parse(localStorage.getItem('user') || '{"fullName": "Guest User", "isKycVerified": false}');
@@ -33,14 +37,28 @@ const CustomerLayout = () => {
     return (
         <div className="customer-layout">
 
+            {/* Mobile Sidebar Overlay */}
+            {isSidebarOpen && (
+                <div
+                    className="sidebar-overlay"
+                    onClick={() => setIsSidebarOpen(false)}
+                ></div>
+            )}
+
             {/* Sidebar Navigation */}
-            <aside className="sidebar">
+            <aside className={`sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}>
                 <div className="sidebar-top">
                     <div className="sidebar-brand">
                         <div className="sidebar-logo">
                             <Target size={28} />
                         </div>
                         <span className="sidebar-brand-name">EZFINANZ</span>
+                        <button
+                            className="mobile-close-btn"
+                            onClick={() => setIsSidebarOpen(false)}
+                        >
+                            <X size={24} />
+                        </button>
                     </div>
 
                     <div className="sidebar-nav-group">
@@ -125,6 +143,17 @@ const CustomerLayout = () => {
 
             {/* Main Content Area Wrapper */}
             <div className="layout-content">
+                {/* Mobile Header */}
+                <div className="mobile-header">
+                    <button
+                        className="mobile-menu-btn"
+                        onClick={() => setIsSidebarOpen(true)}
+                    >
+                        <Menu size={24} />
+                    </button>
+                    <div className="mobile-header-brand">EZFINANZ</div>
+                </div>
+
                 <main className="page-container">
                     <Outlet />
                 </main>

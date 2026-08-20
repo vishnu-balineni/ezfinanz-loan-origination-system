@@ -59,6 +59,18 @@ const DashboardHome = () => {
         fetchDashboardData();
     }, []);
 
+    const getNextEmiDate = () => {
+        if (!loanDetails?.createdAt) return 'N/A';
+        const date = new Date(loanDetails.createdAt);
+        date.setMonth(date.getMonth() + 1);
+        return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    };
+
+    const getFormattedDate = (dateString?: string) => {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    };
+
     const isVerified = storedUser.isKycVerified || false;
     const loanStatus = loanDetails?.status === 'APPROVED' ? 'active' : 'pending';
 
@@ -149,9 +161,9 @@ const DashboardHome = () => {
                                 {formatCurrency(loanDetails?.approvedAmount ? Math.floor(loanDetails.approvedAmount * 0.08885) : 8885)}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', marginBottom: '2rem' }}>
-                                <Calendar size={18} /> Auto-debit scheduled for 05 Nov 2026
+                                <Calendar size={18} /> Auto-debit scheduled for {getNextEmiDate()}
                             </div>
-                            <button style={{ background: '#10b981', color: 'white', border: 'none', padding: '1rem 2.5rem', borderRadius: '0.5rem', fontSize: '1.1rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}>
+                            <button onClick={() => alert('Payment gateway integration pending.')} style={{ background: '#10b981', color: 'white', border: 'none', padding: '1rem 2.5rem', borderRadius: '0.5rem', fontSize: '1.1rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}>
                                 Pay Manually Now
                             </button>
                         </div>
@@ -207,7 +219,7 @@ const DashboardHome = () => {
                             </span>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                        <div className="loan-stats-grid">
                             <div style={{ padding: '1.25rem', background: '#f8fafc', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
                                 <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     <Banknote size={16} color="#10b981" />
@@ -265,7 +277,7 @@ const DashboardHome = () => {
                                 </div>
                                 <ChevronRight size={18} />
                             </button>
-                            <button className="quick-action-btn">
+                            <button className="quick-action-btn" onClick={() => alert('Bank Mandate update initiated.')}>
                                 <div className="quick-action-left">
                                     <RefreshCcw size={18} color="#3b82f6" /> Update Bank Mandate
                                 </div>
@@ -284,27 +296,31 @@ const DashboardHome = () => {
                     <div className="dash-card">
                         <h3 className="card-title">Recent Activity</h3>
                         <div style={{ paddingBottom: '1rem' }}>
-                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem' }}>
-                                <div style={{ color: '#10b981', paddingTop: '2px' }}><CheckCircle2 size={18} /></div>
-                                <div>
-                                    <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#1e293b' }}>Bank Account Verified</div>
-                                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Oct 24, 2026</div>
+                            {loanDetails?.status === 'APPROVED' && (
+                                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem' }}>
+                                    <div style={{ color: '#10b981', paddingTop: '2px' }}><CheckCircle2 size={18} /></div>
+                                    <div>
+                                        <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#1e293b' }}>Loan Disbursed</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{getFormattedDate(loanDetails?.updatedAt || loanDetails?.createdAt)}</div>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
-                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem' }}>
-                                <div style={{ color: '#10b981', paddingTop: '2px' }}><CheckCircle2 size={18} /></div>
-                                <div>
-                                    <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#1e293b' }}>KYC Documents Submitted</div>
-                                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Oct 24, 2026</div>
+                            {isVerified && (
+                                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem' }}>
+                                    <div style={{ color: '#10b981', paddingTop: '2px' }}><CheckCircle2 size={18} /></div>
+                                    <div>
+                                        <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#1e293b' }}>Bank & KYC Verified</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{getFormattedDate(loanDetails?.createdAt)}</div>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div style={{ display: 'flex', gap: '1rem' }}>
                                 <div style={{ color: '#10b981', paddingTop: '2px' }}><CheckCircle2 size={18} /></div>
                                 <div>
                                     <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#1e293b' }}>Application Initiated</div>
-                                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Oct 24, 2026</div>
+                                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{getFormattedDate(loanDetails?.createdAt)}</div>
                                 </div>
                             </div>
                         </div>
