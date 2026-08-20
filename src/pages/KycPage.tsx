@@ -70,9 +70,21 @@ const KycPage = ({ onComplete }: KycProps) => {
                 return;
             }
 
+            let docUrl = "https://dummyurl.com/doc.pdf";
+            if (documentFile) {
+                const base64data = await new Promise<string>((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result as string);
+                    reader.readAsDataURL(documentFile);
+                });
+                const docId = 'doc_' + Date.now();
+                localStorage.setItem(docId, base64data);
+                docUrl = 'local:' + docId;
+            }
+
             const payload = {
                 documentType: documentType,
-                documentUrl: documentFile ? URL.createObjectURL(documentFile) : "https://dummyurl.com/doc.pdf"
+                documentUrl: docUrl
             };
 
             await api.post(`/verification/${userId}/kyc`, payload);
