@@ -97,10 +97,9 @@ const ApplicationReview = () => {
                 <button onClick={() => navigate(-1)} className="back-btn" style={{ background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><ArrowLeft size={16} /> Go Back</button>
             </div>
 
-            <div className="review-grid">
-
+            <div className="review-grid" style={{ alignItems: 'start' }}>
                 {/* Column 1: Identity */}
-                <div className="review-card">
+                <div className="review-card" style={{ alignSelf: 'start' }}>
                     <h2><User2 size={18} style={{ display: 'inline', marginRight: '8px' }} />Identity Verification</h2>
 
                     <div className="data-group">
@@ -120,32 +119,6 @@ const ApplicationReview = () => {
                         <div className="value">{new Date(loanData.applicant?.createdAt || Date.now()).toLocaleDateString()}</div>
                     </div>
                     <div className="data-group">
-                        <label>Provided Documents</label>
-                        {verificationData.kycDocuments.length > 0 ? (
-                            verificationData.kycDocuments.map((doc: any, i: number) => (
-                                <div key={i} className="value" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                                    <div className="verified-tag"><ShieldCheck size={12} /> {doc.documentType}</div>
-                                    {(doc.documentUrl && (doc.documentUrl.startsWith('data:') || doc.documentUrl.startsWith('local:'))) && (
-                                        <button
-                                            onClick={() => {
-                                                const url = doc.documentUrl.startsWith('local:') ? localStorage.getItem(doc.documentUrl.split(':')[1]) : doc.documentUrl;
-                                                if (url) {
-                                                    const win = window.open();
-                                                    if (win) win.document.write(`<iframe src="${url}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
-                                                }
-                                            }}
-                                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '0.25rem', cursor: 'pointer' }}
-                                        >
-                                            View Doc
-                                        </button>
-                                    )}
-                                </div>
-                            ))
-                        ) : (
-                            <div className="value" style={{ color: '#ef4444' }}>No Documents Uploaded</div>
-                        )}
-                    </div>
-                    <div className="data-group">
                         <label>Verification Status</label>
                         <div className="verified-tag" style={{ background: loanData.applicant?.kycVerified ? '#dcfce7' : '#fee2e2', color: loanData.applicant?.kycVerified ? '#166534' : '#991b1b' }}>
                             {loanData.applicant?.kycVerified ? 'Fully KYC Verified' : 'Unverified'}
@@ -154,7 +127,7 @@ const ApplicationReview = () => {
                 </div>
 
                 {/* Column 2: Financials */}
-                <div className="review-card">
+                <div className="review-card" style={{ alignSelf: 'start' }}>
                     <h2><Receipt size={18} style={{ display: 'inline', marginRight: '8px' }} />Financial Health</h2>
 
                     <div className="data-group">
@@ -183,7 +156,7 @@ const ApplicationReview = () => {
                 </div>
 
                 {/* Column 3: Visual & Consent (Moved before EMI Schedule) */}
-                <div className="review-card">
+                <div className="review-card" style={{ alignSelf: 'start' }}>
                     <h2><ShieldCheck size={18} style={{ display: 'inline', marginRight: '8px' }} />Visual & Consent</h2>
 
                     <div className="data-group">
@@ -195,6 +168,39 @@ const ApplicationReview = () => {
                             <button onClick={handleApproveSelfie} style={{ flex: 1, background: '#16a34a', color: 'white', padding: '0.5rem', border: 'none', borderRadius: '0.25rem', fontWeight: 600, cursor: 'pointer' }}>Approve Photo</button>
                             <button onClick={handleRejectSelfie} style={{ flex: 1, background: '#ef4444', color: 'white', padding: '0.5rem', border: 'none', borderRadius: '0.25rem', fontWeight: 600, cursor: 'pointer' }}>Reject Photo</button>
                         </div>
+                    </div>
+
+                    <div className="data-group">
+                        <label>Uploaded KYC Documents</label>
+                        {verificationData.kycDocuments.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                {verificationData.kycDocuments.map((doc: any, i: number) => {
+                                    const url = doc.documentUrl?.startsWith('local:') ? localStorage.getItem(doc.documentUrl.split(':')[1]) : doc.documentUrl;
+                                    return (
+                                        <div key={i} style={{ border: '1px solid #e2e8f0', borderRadius: '0.5rem', padding: '0.5rem', background: '#f8fafc' }}>
+                                            <div className="verified-tag" style={{ marginBottom: '0.5rem', display: 'inline-block' }}><ShieldCheck size={12} /> {doc.documentType}</div>
+                                            {url && url.startsWith('data:image') ? (
+                                                <img src={url} alt={doc.documentType} style={{ width: '100%', borderRadius: '0.25rem', objectFit: 'contain', maxHeight: '200px' }} />
+                                            ) : url && url.startsWith('data:') ? (
+                                                <div style={{ padding: '1rem', textAlign: 'center', background: '#e2e8f0', borderRadius: '0.25rem' }}>
+                                                    PDF / Document File
+                                                    <button onClick={() => {
+                                                        const win = window.open();
+                                                        if (win) win.document.write(`<iframe src="${url}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                                                    }} style={{ display: 'block', margin: '0.5rem auto 0 auto', padding: '0.25rem 0.75rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '0.25rem', cursor: 'pointer' }}>Preview Doc</button>
+                                                </div>
+                                            ) : (
+                                                <div style={{ padding: '1rem', textAlign: 'center', background: '#e2e8f0', borderRadius: '0.25rem', fontStyle: 'italic', color: '#64748b' }}>
+                                                    Missing Document Data
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="value" style={{ color: '#ef4444' }}>No Documents Uploaded</div>
+                        )}
                     </div>
 
                     <div className="data-group">
