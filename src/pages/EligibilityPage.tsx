@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldAlert, CheckCircle2, Calculator, ArrowRight, RotateCcw } from 'lucide-react';
+import api from '../services/api';
 import './EligibilityPage.css';
 
 type ViewState = 'checking' | 'eligible' | 'rejected';
@@ -69,7 +70,23 @@ const EligibilityPage = ({ onComplete }: EligibilityProps) => {
         setCibil('');
     };
 
-    const handleProceed = () => {
+    const handleProceed = async () => {
+        try {
+            const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+            if (storedUser.id) {
+                const payload = {
+                    userId: storedUser.id,
+                    requestedAmount: loanAmount,
+                    termMonths: tenure,
+                    purpose: 'Personal Loan'
+                };
+                // Make the actual API call to register the loan application in the DB!
+                await api.post('/loans/apply', payload);
+            }
+        } catch (error) {
+            console.error("Failed to push loan creation", error);
+        }
+
         if (onComplete) {
             onComplete();
         } else {
