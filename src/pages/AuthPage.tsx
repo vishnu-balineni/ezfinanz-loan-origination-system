@@ -10,6 +10,7 @@ const AuthPage = () => {
     const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(false);
     const [method, setMethod] = useState<'email' | 'phone'>('email');
+    const [isLoading, setIsLoading] = useState(false);
 
     // Email form states
     const [email, setEmail] = useState('');
@@ -70,6 +71,8 @@ const AuthPage = () => {
     const handleAuthSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (isLoading) return; // Prevent double clicks!
+
         if (method === 'phone') {
             if (phone.length === 10) {
                 setOtpSent(true);
@@ -88,6 +91,7 @@ const AuthPage = () => {
             }
 
             try {
+                setIsLoading(true);
                 const baseURL = 'https://exfinanz-backend.onrender.com';
                 const endpoint = isLogin ? `${baseURL}/api/auth/login` : `${baseURL}/api/auth/register`;
 
@@ -130,6 +134,8 @@ const AuthPage = () => {
 
             } catch (err: any) {
                 triggerCustomAlert('error', err.response?.data?.error || err.message, 'Registration Failed');
+            } finally {
+                setIsLoading(false);
             }
         }
     };
@@ -175,7 +181,9 @@ const AuthPage = () => {
     };
 
     const handleGoogleOauthResponse = async (credentialResponse: any) => {
+        if (isLoading) return;
         try {
+            setIsLoading(true);
             const decoded: any = jwtDecode(credentialResponse.credential);
             triggerCustomAlert('success', `Google Auth Verified for ${decoded.email}. Provisioning Account...`, 'OAuth Success');
 
@@ -201,6 +209,8 @@ const AuthPage = () => {
 
         } catch (err: any) {
             triggerCustomAlert('error', err.message, 'Google Auth Error');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -444,10 +454,10 @@ const AuthPage = () => {
                                 <button
                                     type="submit"
                                     className="auth-submit-btn"
-                                    disabled={method === 'phone' && phone.length < 10}
+                                    disabled={isLoading || (method === 'phone' && phone.length < 10)}
                                 >
-                                    {isLogin ? (method === 'email' ? 'Sign In' : 'Send OTP') : (method === 'email' ? 'Create Account' : 'Send Verification OTP')}
-                                    <ArrowRight size={18} />
+                                    {isLoading ? 'Processing...' : isLogin ? (method === 'email' ? 'Sign In' : 'Send OTP') : (method === 'email' ? 'Create Account' : 'Send Verification OTP')}
+                                    {!isLoading && <ArrowRight size={18} />}
                                 </button>
                             </form>
                         ) : (

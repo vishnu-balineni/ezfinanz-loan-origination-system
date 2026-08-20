@@ -3,6 +3,7 @@ import KycPage from '../KycPage';
 import EligibilityPage from '../EligibilityPage';
 import BankDetailsPage from '../BankDetailsPage';
 import SelfiePage from '../SelfiePage';
+import PhoneVerificationPage from '../PhoneVerificationPage';
 import { ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { Stepper } from '../../components/Stepper';
 import './ProfileStyles.css';
@@ -12,8 +13,11 @@ const VerificationFlow = () => {
     const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
     const isVerified = storedUser.isKycVerified || false;
 
-    // Verification Flow State (0: KYC, 1: Eligibility, 2: Bank, 3: Selfie, 4: Done)
-    const [onboardingStep, setOnboardingStep] = useState(isVerified ? 4 : 0);
+    // Check if we need Phone Verification step
+    const needsPhoneVerification = !storedUser.phone || storedUser.phone.startsWith('OAuth-');
+
+    // Verification Flow State (-1: Phone, 0: KYC, 1: Eligibility, 2: Bank, 3: Selfie, 4: Done)
+    const [onboardingStep, setOnboardingStep] = useState(isVerified ? 4 : (needsPhoneVerification ? -1 : 0));
 
     return (
         <div className="onboarding-dashboard-view">
@@ -34,6 +38,7 @@ const VerificationFlow = () => {
 
             {onboardingStep < 4 ? (
                 <div className="onboarding-widget-container" style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '1rem', border: '1px solid #e2e8f0' }}>
+                    {onboardingStep === -1 && <PhoneVerificationPage onComplete={() => setOnboardingStep(0)} />}
                     {onboardingStep === 0 && <KycPage onComplete={() => setOnboardingStep(1)} />}
                     {onboardingStep === 1 && <EligibilityPage onComplete={() => setOnboardingStep(2)} />}
                     {onboardingStep === 2 && <BankDetailsPage onComplete={() => setOnboardingStep(3)} />}
