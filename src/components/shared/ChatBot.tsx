@@ -71,7 +71,7 @@ export default function ChatBot({ mode }: ChatBotProps) {
                     'Authorization': `Bearer ${GROQ_API_KEY}`
                 },
                 body: JSON.stringify({
-                    model: 'llama3-8b-8192',
+                    model: 'llama-3.1-8b-instant',
                     messages: newMsgs,
                     temperature: 0.5,
                     max_tokens: 1024
