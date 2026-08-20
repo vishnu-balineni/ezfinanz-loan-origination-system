@@ -125,6 +125,17 @@ const ApplicationReview = () => {
                             verificationData.kycDocuments.map((doc: any, i: number) => (
                                 <div key={i} className="value" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
                                     <div className="verified-tag"><ShieldCheck size={12} /> {doc.documentType}</div>
+                                    {doc.documentUrl && doc.documentUrl.startsWith('data:') && (
+                                        <button
+                                            onClick={() => {
+                                                const win = window.open();
+                                                if (win) win.document.write(`<iframe src="${doc.documentUrl}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                                            }}
+                                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '0.25rem', cursor: 'pointer' }}
+                                        >
+                                            View Doc
+                                        </button>
+                                    )}
                                 </div>
                             ))
                         ) : (
