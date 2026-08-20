@@ -1,5 +1,5 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { triggerCustomAlert } from '../shared/CustomAlertModal';
 import {
     LayoutDashboard,
@@ -18,7 +18,13 @@ import './CustomerLayout.css';
 
 const CustomerLayout = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // Auto-close sidebar on mobile when navigating pages
+    useEffect(() => {
+        setIsSidebarOpen(false);
+    }, [location.pathname]);
 
     // Dynamic Application State
     const storedUser = JSON.parse(localStorage.getItem('user') || '{"fullName": "Guest User", "isKycVerified": false}');
@@ -67,7 +73,6 @@ const CustomerLayout = () => {
                         <NavLink
                             to="/dashboard"
                             end
-                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <LayoutDashboard size={18} />
@@ -76,7 +81,6 @@ const CustomerLayout = () => {
 
                         <NavLink
                             to="/dashboard/apply"
-                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <PlusCircle size={18} />
@@ -85,7 +89,6 @@ const CustomerLayout = () => {
 
                         <NavLink
                             to="/dashboard/verify"
-                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <ShieldCheck size={18} />
@@ -94,7 +97,6 @@ const CustomerLayout = () => {
 
                         <NavLink
                             to="/dashboard/documents"
-                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <FileText size={18} />
@@ -103,7 +105,6 @@ const CustomerLayout = () => {
 
                         <NavLink
                             to="/dashboard/history"
-                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <History size={18} />
@@ -120,7 +121,6 @@ const CustomerLayout = () => {
                         <div className="nav-label">Settings</div>
                         <NavLink
                             to="/dashboard/profile"
-                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                         >
                             <User size={18} />
