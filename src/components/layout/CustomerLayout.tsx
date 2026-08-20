@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { triggerCustomAlert } from '../shared/CustomAlertModal';
+
 import {
     LayoutDashboard,
     User,
@@ -111,10 +111,13 @@ const CustomerLayout = () => {
                             Loan History
                         </NavLink>
 
-                        <button className="sidebar-link" style={{ border: 'none', background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => { setIsSidebarOpen(false); triggerCustomAlert('success', 'Support module initiated.', 'Support Requested'); }}>
+                        <NavLink
+                            to="/dashboard/support"
+                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                        >
                             <LifeBuoy size={18} />
                             Support
-                        </button>
+                        </NavLink>
                     </div>
 
                     <div className="sidebar-nav-group">

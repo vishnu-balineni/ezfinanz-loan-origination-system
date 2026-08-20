@@ -122,7 +122,7 @@ const Documents = () => {
                 localStorage.setItem(docId, base64data);
 
                 const payload = {
-                    documentType: file.name.toUpperCase().includes('PAN') ? 'PAN' : file.name.toUpperCase().includes('AADHAAR') ? 'AADHAAR' : 'USER_UPLOAD',
+                    documentType: file.name,
                     documentUrl: 'local:' + docId
                 };
 
@@ -206,13 +206,20 @@ const Documents = () => {
                         <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>Loading records...</div>
                     ) : kycDocs.length === 0 ? (
                         <div style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>No documents uploaded. Complete verification to see your records here.</div>
-                    ) : kycDocs.map((doc, idx) => (
-                        <DocumentRow key={idx}
-                            name={doc.documentUrl && doc.documentUrl.startsWith('data:') ? 'Uploaded_Document.pdf' : `${doc.documentType}.pdf`}
-                            size="1.2 MB"
-                            docUrl={doc.documentUrl}
-                        />
-                    ))}
+                    ) : kycDocs.map((doc, idx) => {
+                        const originalName = doc.documentType;
+                        const finalName = (originalName.toLowerCase().endsWith('.pdf') || originalName.toLowerCase().endsWith('.jpg') || originalName.toLowerCase().endsWith('.png'))
+                            ? originalName
+                            : `${originalName}.pdf`;
+
+                        return (
+                            <DocumentRow key={idx}
+                                name={finalName}
+                                size="1.2 MB"
+                                docUrl={doc.documentUrl}
+                            />
+                        );
+                    })}
 
                     {/* Only show these if they actually have documents and are likely an active applicant */}
                     {kycDocs.length > 0 && (

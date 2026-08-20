@@ -13,6 +13,7 @@ import VerificationFlow from './pages/portal/VerificationFlow';
 import MyProfile from './pages/portal/MyProfile';
 import Documents from './pages/portal/Documents';
 import LoanHistory from './pages/portal/LoanHistory';
+import Support from './pages/portal/Support';
 
 // Admin Portal Imports
 import AdminLayout from './components/layout/AdminLayout';
@@ -22,6 +23,7 @@ import AdminPending from './pages/admin/AdminPending';
 import AdminDisbursements from './pages/admin/AdminDisbursements';
 import AdminActiveLoans from './pages/admin/AdminActiveLoans';
 import AdminProfile from './pages/admin/AdminProfile';
+import AdminSupport from './pages/admin/AdminSupport';
 
 function App() {
     return (
@@ -40,6 +42,7 @@ function App() {
                     <Route path="profile" element={<MyProfile />} />
                     <Route path="documents" element={<Documents />} />
                     <Route path="history" element={<LoanHistory />} />
+                    <Route path="support" element={<Support />} />
                 </Route>
 
                 {/* Admin Portal Routes */}
@@ -50,6 +53,7 @@ function App() {
                     <Route path="disbursements" element={<AdminDisbursements />} />
                     <Route path="active-loans" element={<AdminActiveLoans />} />
                     <Route path="profile" element={<AdminProfile />} />
+                    <Route path="support" element={<AdminSupport />} />
                     <Route path="review/:id" element={<ApplicationReview />} />
                 </Route>
 

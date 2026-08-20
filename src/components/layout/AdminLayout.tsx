@@ -7,6 +7,7 @@ import {
     LogOut,
     ShieldCheck,
     Briefcase,
+    Sparkles,
     Menu,
     X
 } from 'lucide-react';
@@ -93,6 +94,18 @@ const AdminLayout = () => {
                         >
                             <Banknote size={18} />
                             Disbursements
+                        </NavLink>
+                    </div>
+
+                    <div className="admin-nav-group">
+                        <div className="admin-nav-label">System</div>
+
+                        <NavLink
+                            to="/admin/support"
+                            className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
+                        >
+                            <Sparkles size={18} />
+                            Admin Copilot
                         </NavLink>
                     </div>
                 </div>
