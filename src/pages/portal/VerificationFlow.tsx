@@ -13,11 +13,13 @@ const VerificationFlow = () => {
     const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
     const isVerified = storedUser.isKycVerified || false;
 
-    // Check if we need Phone Verification step
-    const needsPhoneVerification = !storedUser.phone || storedUser.phone.startsWith('OAuth-');
+    // Check if we need Phone or Email Verification (cross verify)
+    const isMissingPhone = !storedUser.phone || storedUser.phone.startsWith('OAuth-');
+    const isMissingEmail = !storedUser.email || storedUser.email.trim() === '';
+    const needsContactVerification = isMissingPhone || isMissingEmail;
 
-    // Verification Flow State (-1: Phone, 0: KYC, 1: Eligibility, 2: Bank, 3: Selfie, 4: Done)
-    const [onboardingStep, setOnboardingStep] = useState(isVerified ? 4 : (needsPhoneVerification ? -1 : 0));
+    // Verification Flow State (-1: Phone/Email Link, 0: KYC, 1: Eligibility, 2: Bank, 3: Selfie, 4: Done)
+    const [onboardingStep, setOnboardingStep] = useState(isVerified ? 4 : (needsContactVerification ? -1 : 0));
 
     return (
         <div className="onboarding-dashboard-view">

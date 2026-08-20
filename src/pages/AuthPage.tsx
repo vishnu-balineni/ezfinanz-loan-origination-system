@@ -71,7 +71,15 @@ export default function AuthPage() {
         // Mock verification success
         if (method === 'phone') {
             triggerCustomAlert('success', "Verification successful!", 'OTP Verified');
-            navigate('/dashboard'); // Mock flow for just phone
+            localStorage.setItem('user', JSON.stringify({
+                id: Math.floor(Math.random() * 10000).toString(),
+                email: '',
+                role: 'ROLE_USER',
+                fullName: fullName || 'User',
+                isKycVerified: false,
+                phone: phone
+            }));
+            navigate('/dashboard');
             return;
         }
 
@@ -213,16 +221,7 @@ export default function AuthPage() {
                         </div>
                     )}
 
-                    {!otpSent && (
-                        <div className="animate-fade-in" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            <GoogleLogin onSuccess={handleGoogleOauthResponse} onError={() => triggerCustomAlert('error', 'Google Login Failed.', 'Wait')} useOneTap />
-                            <div style={{ display: 'flex', alignItems: 'center', margin: '0.5rem 0' }}>
-                                <div style={{ flex: 1, height: '1px', background: '#cbd5e1' }}></div>
-                                <span style={{ padding: '0 0.5rem', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600 }}>OR</span>
-                                <div style={{ flex: 1, height: '1px', background: '#cbd5e1' }}></div>
-                            </div>
-                        </div>
-                    )}
+
 
                     {!otpSent ? (
                         <form onSubmit={handleInitialSubmit} className="animate-fade-in">
@@ -285,19 +284,39 @@ export default function AuthPage() {
                             )}
 
                             {method === 'phone' && (
-                                <div className="form-group">
-                                    <label>Mobile Number</label>
-                                    <div className="input-wrapper">
-                                        <Phone className="input-icon" size={18} />
-                                        <input type="tel" required value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))} placeholder="Enter 10-digit number" className="auth-input" />
+                                <>
+                                    <div className="form-group">
+                                        <label>Full Name</label>
+                                        <div className="input-wrapper">
+                                            <input type="text" required placeholder="John Doe" value={fullName} onChange={e => setFullName(e.target.value)} className="auth-input" />
+                                        </div>
                                     </div>
-                                </div>
+                                    <div className="form-group">
+                                        <label>Mobile Number</label>
+                                        <div className="input-wrapper">
+                                            <Phone className="input-icon" size={18} />
+                                            <input type="tel" required value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))} placeholder="Enter 10-digit number" className="auth-input" />
+                                        </div>
+                                    </div>
+                                </>
                             )}
 
-                            <button type="submit" className="auth-submit-btn" disabled={method === 'phone' && phone.length < 10}>
+                            <button type="submit" className="auth-submit-btn" disabled={method === 'phone' && (phone.length < 10 || fullName.length < 2)}>
                                 {isLogin ? 'Sign In Securely' : 'Continue to Register'}
                                 <ArrowRight size={18} />
                             </button>
+
+                            {/* Google OAuth Downwards */}
+                            <div className="animate-fade-in" style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', margin: '0.5rem 0' }}>
+                                    <div style={{ flex: 1, height: '1px', background: '#cbd5e1' }}></div>
+                                    <span style={{ padding: '0 0.5rem', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600 }}>OR</span>
+                                    <div style={{ flex: 1, height: '1px', background: '#cbd5e1' }}></div>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                    <GoogleLogin onSuccess={handleGoogleOauthResponse} onError={() => triggerCustomAlert('error', 'Google Login Failed.', 'Wait')} useOneTap={false} />
+                                </div>
+                            </div>
                         </form>
                     ) : (
                         <div className="otp-verification animate-fade-in">
