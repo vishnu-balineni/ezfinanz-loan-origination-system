@@ -155,66 +155,7 @@ const ApplicationReview = () => {
                     </div>
                 </div>
 
-                {/* Column 3: Visual & Consent (Moved before EMI Schedule) */}
-                <div className="review-card" style={{ alignSelf: 'start' }}>
-                    <h2><ShieldCheck size={18} style={{ display: 'inline', marginRight: '8px' }} />Visual & Consent</h2>
-
-                    <div className="data-group">
-                        <label>Live Selfie Capture ({loanData.applicant?.kycVerified ? "Verified User" : "Pending Review"})</label>
-                        <div className="selfie-box">
-                            <img src={loanData.applicant?.selfieImageBase64 || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=300&h=400"} alt="Applicant Selfie" />
-                        </div>
-                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                            <button onClick={handleApproveSelfie} style={{ flex: 1, background: '#16a34a', color: 'white', padding: '0.5rem', border: 'none', borderRadius: '0.25rem', fontWeight: 600, cursor: 'pointer' }}>Approve Photo</button>
-                            <button onClick={handleRejectSelfie} style={{ flex: 1, background: '#ef4444', color: 'white', padding: '0.5rem', border: 'none', borderRadius: '0.25rem', fontWeight: 600, cursor: 'pointer' }}>Reject Photo</button>
-                        </div>
-                    </div>
-
-                    <div className="data-group">
-                        <label>Uploaded KYC Documents</label>
-                        {verificationData.kycDocuments.length > 0 ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                {verificationData.kycDocuments.map((doc: any, i: number) => {
-                                    const url = doc.documentUrl?.startsWith('local:') ? localStorage.getItem(doc.documentUrl.split(':')[1]) : doc.documentUrl;
-                                    return (
-                                        <div key={i} style={{ border: '1px solid #e2e8f0', borderRadius: '0.5rem', padding: '0.5rem', background: '#f8fafc' }}>
-                                            <div className="verified-tag" style={{ marginBottom: '0.5rem', display: 'inline-block' }}><ShieldCheck size={12} /> {doc.documentType}</div>
-                                            {url && url.startsWith('data:image') ? (
-                                                <img src={url} alt={doc.documentType} style={{ width: '100%', borderRadius: '0.25rem', objectFit: 'contain', maxHeight: '200px' }} />
-                                            ) : url && url.startsWith('data:') ? (
-                                                <div style={{ padding: '1rem', textAlign: 'center', background: '#e2e8f0', borderRadius: '0.25rem' }}>
-                                                    PDF / Document File
-                                                    <button onClick={() => {
-                                                        const win = window.open();
-                                                        if (win) win.document.write(`<iframe src="${url}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
-                                                    }} style={{ display: 'block', margin: '0.5rem auto 0 auto', padding: '0.25rem 0.75rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '0.25rem', cursor: 'pointer' }}>Preview Doc</button>
-                                                </div>
-                                            ) : (
-                                                <div style={{ padding: '1rem', textAlign: 'center', background: '#e2e8f0', borderRadius: '0.25rem', fontStyle: 'italic', color: '#64748b' }}>
-                                                    Missing Document Data
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <div className="value" style={{ color: '#ef4444' }}>No Documents Uploaded</div>
-                        )}
-                    </div>
-
-                    <div className="data-group">
-                        <label>E-Mandate Signature</label>
-                        <div className="mandate-text">
-                            "I hereby authorize EZFINANZ to deduct EMI obligations directly from my verified disbursement bank account."
-                        </div>
-                        <div className="verified-tag" style={{ marginTop: '0.5rem' }}>
-                            <CheckCircle2 size={12} /> Digitally Signed via OTP
-                        </div>
-                    </div>
-                </div>
-
-                {/* New Section: EMI Schedule Preview (Moved to bottom) */}
+                {/* New Section: EMI Schedule Preview (Moved up) */}
                 <div className="review-card" style={{ gridColumn: '1 / -1', marginTop: '1rem', padding: '1.5rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem' }}>
                     <h2 style={{ fontSize: '1.125rem', color: '#0f172a', marginBottom: '1rem' }}><Receipt size={18} style={{ display: 'inline', marginRight: '8px' }} />EMI Repayment Schedule Preview</h2>
                     <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1rem' }}>Approving this application will automatically generate this 12-month schedule in the database.</p>
@@ -250,6 +191,67 @@ const ApplicationReview = () => {
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                {/* Column 3: Visual & Consent (Moved to bottom) */}
+                <div className="review-card" style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
+                    <h2><ShieldCheck size={18} style={{ display: 'inline', marginRight: '8px' }} />Visual & Consent Profiles</h2>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', alignItems: 'start', marginTop: '1rem' }}>
+                        <div className="data-group">
+                            <label>Live Selfie Capture ({loanData.applicant?.kycVerified ? "Verified User" : "Pending Review"})</label>
+                            <div className="selfie-box" style={{ maxWidth: '400px' }}>
+                                <img src={loanData.applicant?.selfieImageBase64 || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=300&h=400"} alt="Applicant Selfie" style={{ width: '100%', borderRadius: '0.5rem', objectFit: 'cover' }} />
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', maxWidth: '400px' }}>
+                                <button onClick={handleApproveSelfie} style={{ flex: 1, background: '#16a34a', color: 'white', padding: '0.5rem', border: 'none', borderRadius: '0.25rem', fontWeight: 600, cursor: 'pointer' }}>Approve Photo</button>
+                                <button onClick={handleRejectSelfie} style={{ flex: 1, background: '#ef4444', color: 'white', padding: '0.5rem', border: 'none', borderRadius: '0.25rem', fontWeight: 600, cursor: 'pointer' }}>Reject Photo</button>
+                            </div>
+                        </div>
+
+                        <div className="data-group">
+                            <label>Uploaded KYC Documents</label>
+                            {verificationData.kycDocuments.length > 0 ? (
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                                    {verificationData.kycDocuments.map((doc: any, i: number) => {
+                                        const url = doc.documentUrl?.startsWith('local:') ? localStorage.getItem(doc.documentUrl.split(':')[1]) : doc.documentUrl;
+                                        return (
+                                            <div key={i} style={{ border: '1px solid #e2e8f0', borderRadius: '0.5rem', padding: '0.5rem', background: '#f8fafc' }}>
+                                                <div className="verified-tag" style={{ marginBottom: '0.5rem', display: 'inline-block' }}><ShieldCheck size={12} /> {doc.documentType}</div>
+                                                {url && url.startsWith('data:image') ? (
+                                                    <img src={url} alt={doc.documentType} style={{ width: '100%', borderRadius: '0.25rem', objectFit: 'cover', maxHeight: '250px' }} />
+                                                ) : url && url.startsWith('data:') ? (
+                                                    <div style={{ padding: '1rem', textAlign: 'center', background: '#e2e8f0', borderRadius: '0.25rem' }}>
+                                                        PDF / Document
+                                                        <button onClick={() => {
+                                                            const win = window.open();
+                                                            if (win) win.document.write(`<iframe src="${url}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                                                        }} style={{ display: 'block', margin: '0.5rem auto 0 auto', padding: '0.25rem 0.75rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '0.25rem', cursor: 'pointer' }}>Preview</button>
+                                                    </div>
+                                                ) : (
+                                                    <div style={{ padding: '1rem', textAlign: 'center', background: '#e2e8f0', borderRadius: '0.25rem', fontStyle: 'italic', color: '#64748b' }}>
+                                                        Missing Data
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="value" style={{ color: '#ef4444' }}>No Documents Uploaded</div>
+                            )}
+
+                            <div className="data-group" style={{ marginTop: '1.5rem' }}>
+                                <label>E-Mandate Signature</label>
+                                <div className="mandate-text" style={{ padding: '1rem', background: '#f1f5f9', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+                                    "I hereby authorize EZFINANZ to deduct EMI obligations directly from my verified disbursement bank account."
+                                </div>
+                                <div className="verified-tag" style={{ marginTop: '0.5rem', display: 'inline-block' }}>
+                                    <CheckCircle2 size={12} /> Digitally Signed via OTP
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
