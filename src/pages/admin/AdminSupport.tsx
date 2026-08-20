@@ -1,7 +1,7 @@
 
 import ChatBot from '../../components/shared/ChatBot';
 import { Sparkles } from 'lucide-react';
-import '../admin/AdminLayout.css';
+import '../../components/layout/AdminLayout.css';
 
 const AdminSupport = () => {
     return (

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Loader2, Sparkles, AlertCircle } from 'lucide-react';
-import './CustomerLayout.css'; // Just using standard app styles
+import '../layout/CustomerLayout.css'; // Just using standard app styles
 
 // For ease, you can also inject this from .env (import.meta.env.VITE_GROQ_API_KEY)
 // @ts-ignore
