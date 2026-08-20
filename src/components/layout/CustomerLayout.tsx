@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { triggerCustomAlert } from '../shared/CustomAlertModal';
 import {
@@ -70,46 +70,50 @@ const CustomerLayout = () => {
                     <div className="sidebar-nav-group">
                         <div className="nav-label">My Space</div>
 
-                        <NavLink
-                            to="/dashboard"
-                            end
-                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                        <div
+                            onClick={() => { navigate('/dashboard'); setIsSidebarOpen(false); }}
+                            className={`sidebar-link ${location.pathname === '/dashboard' || location.pathname === '/dashboard/' ? 'active' : ''}`}
+                            style={{ cursor: 'pointer' }}
                         >
                             <LayoutDashboard size={18} />
                             Dashboard
-                        </NavLink>
+                        </div>
 
-                        <NavLink
-                            to="/dashboard/apply"
-                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                        <div
+                            onClick={() => { navigate('/dashboard/apply'); setIsSidebarOpen(false); }}
+                            className={`sidebar-link ${location.pathname === '/dashboard/apply' ? 'active' : ''}`}
+                            style={{ cursor: 'pointer' }}
                         >
                             <PlusCircle size={18} />
                             Apply for Loan
-                        </NavLink>
+                        </div>
 
-                        <NavLink
-                            to="/dashboard/verify"
-                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                        <div
+                            onClick={() => { navigate('/dashboard/verify'); setIsSidebarOpen(false); }}
+                            className={`sidebar-link ${location.pathname === '/dashboard/verify' ? 'active' : ''}`}
+                            style={{ cursor: 'pointer' }}
                         >
                             <ShieldCheck size={18} />
                             {storedUser.isKycVerified ? "Verification Status" : "Get Verified"}
-                        </NavLink>
+                        </div>
 
-                        <NavLink
-                            to="/dashboard/documents"
-                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                        <div
+                            onClick={() => { navigate('/dashboard/documents'); setIsSidebarOpen(false); }}
+                            className={`sidebar-link ${location.pathname === '/dashboard/documents' ? 'active' : ''}`}
+                            style={{ cursor: 'pointer' }}
                         >
                             <FileText size={18} />
                             Documents
-                        </NavLink>
+                        </div>
 
-                        <NavLink
-                            to="/dashboard/history"
-                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                        <div
+                            onClick={() => { navigate('/dashboard/history'); setIsSidebarOpen(false); }}
+                            className={`sidebar-link ${location.pathname === '/dashboard/history' ? 'active' : ''}`}
+                            style={{ cursor: 'pointer' }}
                         >
                             <History size={18} />
                             Loan History
-                        </NavLink>
+                        </div>
 
                         <button className="sidebar-link" style={{ border: 'none', background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => { setIsSidebarOpen(false); triggerCustomAlert('success', 'Support module initiated.', 'Support Requested'); }}>
                             <LifeBuoy size={18} />
@@ -119,13 +123,14 @@ const CustomerLayout = () => {
 
                     <div className="sidebar-nav-group">
                         <div className="nav-label">Settings</div>
-                        <NavLink
-                            to="/dashboard/profile"
-                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                        <div
+                            onClick={() => { navigate('/dashboard/profile'); setIsSidebarOpen(false); }}
+                            className={`sidebar-link ${location.pathname === '/dashboard/profile' ? 'active' : ''}`}
+                            style={{ cursor: 'pointer' }}
                         >
                             <User size={18} />
                             My Profile
-                        </NavLink>
+                        </div>
                     </div>
                 </div>
 

@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
     Users,
@@ -58,54 +58,57 @@ const AdminLayout = () => {
                     <div className="admin-nav-group">
                         <div className="admin-nav-label">Applications</div>
 
-                        <NavLink
-                            to="/admin/dashboard"
-                            end
-                            className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
+                        <div
+                            onClick={() => { navigate('/admin/dashboard'); setIsSidebarOpen(false); }}
+                            className={`admin-link ${location.pathname === '/admin/dashboard' || location.pathname === '/admin' ? 'active' : ''}`}
+                            style={{ cursor: 'pointer' }}
                         >
                             <Users size={18} />
                             All Applications
-                        </NavLink>
+                        </div>
 
-                        <NavLink
-                            to="/admin/pending"
-                            className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
+                        <div
+                            onClick={() => { navigate('/admin/pending'); setIsSidebarOpen(false); }}
+                            className={`admin-link ${location.pathname === '/admin/pending' ? 'active' : ''}`}
+                            style={{ cursor: 'pointer' }}
                         >
                             <FileSearch size={18} />
                             Pending KYC
-                        </NavLink>
+                        </div>
                     </div>
 
                     <div className="admin-nav-group">
                         <div className="admin-nav-label">Finance & Portfolio</div>
 
-                        <NavLink
-                            to="/admin/active-loans"
-                            className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
+                        <div
+                            onClick={() => { navigate('/admin/active-loans'); setIsSidebarOpen(false); }}
+                            className={`admin-link ${location.pathname === '/admin/active-loans' ? 'active' : ''}`}
+                            style={{ cursor: 'pointer' }}
                         >
                             <Briefcase size={18} />
                             Active Loans
-                        </NavLink>
+                        </div>
 
-                        <NavLink
-                            to="/admin/disbursements"
-                            className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
+                        <div
+                            onClick={() => { navigate('/admin/disbursements'); setIsSidebarOpen(false); }}
+                            className={`admin-link ${location.pathname === '/admin/disbursements' ? 'active' : ''}`}
+                            style={{ cursor: 'pointer' }}
                         >
                             <Banknote size={18} />
                             Disbursements
-                        </NavLink>
+                        </div>
                     </div>
                 </div>
 
                 <div className="admin-sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <NavLink
-                        to="/admin/profile"
-                        className={({ isActive }) => `admin-link ${isActive ? 'active' : ''}`}
-                        style={{ justifyContent: 'center' }}
+                    <div
+                        onClick={() => { navigate('/admin/profile'); setIsSidebarOpen(false); }}
+                        className={`admin-link ${location.pathname === '/admin/profile' ? 'active' : ''}`}
+                        style={{ justifyContent: 'center', cursor: 'pointer' }}
                     >
                         <ShieldCheck size={18} />
                         Admin Profile
-                    </NavLink>
+                    </div>
 
                     <button onClick={handleLogout} className="admin-logout-btn">
                         <LogOut size={18} />
