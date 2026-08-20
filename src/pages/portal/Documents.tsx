@@ -33,40 +33,79 @@ const Documents = () => {
     }, [storedUser.id]);
 
     // Configurable row mapping to exact prompt specs
-    const DocumentRow = ({ name, size }: { name: string, size: string }) => (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderBottom: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ width: '2.5rem', height: '2.5rem', background: '#ecfdf5', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
-                    <FileText size={20} />
+    const DocumentRow = ({ name, size, docUrl }: { name: string, size: string, docUrl?: string }) => {
+        const getRealUrl = (url?: string) => {
+            if (!url) return null;
+            if (url.startsWith('local:')) return localStorage.getItem(url.split(':')[1]) || null;
+            return url;
+        };
+
+        const handleDownload = () => {
+            const dataUrl = getRealUrl(docUrl || name);
+            if (dataUrl && dataUrl.startsWith('data:')) {
+                const a = document.createElement('a');
+                a.href = dataUrl;
+                a.download = name;
+                a.click();
+            } else {
+                triggerCustomAlert('success', `Document ${name} download started.`, 'Download');
+            }
+        };
+
+        const handleView = () => {
+            const dataUrl = getRealUrl(docUrl || name);
+            if (dataUrl && (dataUrl.startsWith('data:') || dataUrl.startsWith('http'))) {
+                const win = window.open();
+                if (win) {
+                    if (dataUrl.startsWith('data:')) {
+                        win.document.write(`<iframe src="${dataUrl}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                    } else {
+                        win.location.href = dataUrl;
+                    }
+                }
+            } else {
+                triggerCustomAlert('success', `Preview not available for ${name}.`, 'View Document');
+            }
+        };
+
+        return (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderBottom: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ width: '2.5rem', height: '2.5rem', background: '#ecfdf5', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
+                        <FileText size={20} />
+                    </div>
+                    <div>
+                        <div style={{ fontWeight: 600, color: '#1e293b' }}>{name}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>PDF Document • {size}</div>
+                    </div>
                 </div>
-                <div>
-                    <div style={{ fontWeight: 600, color: '#1e293b' }}>{name}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>PDF Document • {size}</div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                        onClick={handleView}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '0.5rem',
+                            background: 'transparent', border: '1px solid #3b82f6',
+                            padding: '0.5rem 1rem', borderRadius: '0.5rem',
+                            color: '#3b82f6', cursor: 'pointer', fontWeight: 600
+                        }}>
+                        <FileText size={16} />
+                        <span className="hidden sm:inline">View</span>
+                    </button>
+                    <button
+                        onClick={handleDownload}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '0.5rem',
+                            background: 'transparent', border: '1px solid #10b981',
+                            padding: '0.5rem 1rem', borderRadius: '0.5rem',
+                            color: '#10b981', cursor: 'pointer', fontWeight: 600
+                        }}>
+                        <Download size={16} />
+                        <span className="hidden sm:inline">Download</span>
+                    </button>
                 </div>
             </div>
-            <button
-                onClick={() => {
-                    const dataUrl = name.includes('base64') || name.startsWith('data:') ? name : null;
-                    if (dataUrl) {
-                        const win = window.open();
-                        if (win) {
-                            win.document.write(`<iframe src="${dataUrl}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
-                        }
-                    } else {
-                        triggerCustomAlert('success', 'Document download started.', 'Download');
-                    }
-                }}
-                style={{
-                    display: 'flex', alignItems: 'center', gap: '0.5rem',
-                    background: 'transparent', border: '1px solid #cbd5e1',
-                    padding: '0.5rem 1rem', borderRadius: '0.5rem',
-                    color: '#475569', cursor: 'pointer', fontWeight: 600
-                }}>
-                <Download size={16} />
-                <span className="hidden sm:inline">View / Download</span>
-            </button>
-        </div>
-    );
+        );
+    };
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -79,9 +118,12 @@ const Documents = () => {
 
             try {
                 // Infer type from filename or prompt user
+                const docId = 'doc_' + Date.now();
+                localStorage.setItem(docId, base64data);
+
                 const payload = {
                     documentType: file.name.toUpperCase().includes('PAN') ? 'PAN' : file.name.toUpperCase().includes('AADHAAR') ? 'AADHAAR' : 'USER_UPLOAD',
-                    documentUrl: base64data
+                    documentUrl: 'local:' + docId
                 };
 
                 await api.post(`/verification/${storedUser.id}/kyc`, payload);
@@ -165,7 +207,11 @@ const Documents = () => {
                     ) : kycDocs.length === 0 ? (
                         <div style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>No documents uploaded. Complete verification to see your records here.</div>
                     ) : kycDocs.map((doc, idx) => (
-                        <DocumentRow key={idx} name={doc.documentUrl && doc.documentUrl.startsWith('data:') ? doc.documentUrl : `${doc.documentType}.pdf`} size="1.2 MB" />
+                        <DocumentRow key={idx}
+                            name={doc.documentUrl && doc.documentUrl.startsWith('data:') ? 'Uploaded_Document.pdf' : `${doc.documentType}.pdf`}
+                            size="1.2 MB"
+                            docUrl={doc.documentUrl}
+                        />
                     ))}
 
                     {/* Only show these if they actually have documents and are likely an active applicant */}
