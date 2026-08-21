@@ -28,31 +28,50 @@ const LoanHistory = () => {
 
     // Payment Simulator State
     const [showPaymentModal, setShowPaymentModal] = useState(false);
-    const [paymentMode, setPaymentMode] = useState<'EMI' | 'FORECLOSE'>('EMI');
+    const [paymentMode, setPaymentMode] = useState<'EMI' | 'CUSTOM'>('EMI');
+    const [customAmount, setCustomAmount] = useState<string>('');
     const [isPaying, setIsPaying] = useState(false);
     const [mockEmiPaid, setMockEmiPaid] = useState(false);
     const [mockForeclosed, setMockForeclosed] = useState(false);
     const [mockReceiptId, setMockReceiptId] = useState('');
+    const [lastPaidAmount, setLastPaidAmount] = useState<number>(0);
 
     const handlePayEmi = async () => {
+        let amountToPay = 8885;
+        if (paymentMode === 'CUSTOM') {
+            amountToPay = Number(customAmount);
+        }
+
+        const activeLoanLocal = loans.find((l: any) => l.id.toString() === selectedLoan?.toString());
+        const totalOutstanding = activeLoanLocal?.approvedAmount ? Math.floor(activeLoanLocal.approvedAmount * 0.9) : 0;
+
+        if (paymentMode === 'CUSTOM' && (amountToPay <= 0 || amountToPay > totalOutstanding)) {
+            alert('Invalid amount. Please enter a valid number up to your total outstanding balance.');
+            return;
+        }
+
         setIsPaying(true);
+        const isFullRepayment = amountToPay >= totalOutstanding;
+
         try {
-            const apiPath = paymentMode === 'EMI' ? `/loans/${selectedLoan}/pay` : `/loans/${selectedLoan}/foreclose`;
+            const apiPath = isFullRepayment ? `/loans/${selectedLoan}/foreclose` : `/loans/${selectedLoan}/pay`;
             const res = await api.post(apiPath);
             setTimeout(() => {
                 setIsPaying(false);
                 setShowPaymentModal(false);
-                if (paymentMode === 'EMI') setMockEmiPaid(true);
-                else setMockForeclosed(true);
+                setLastPaidAmount(amountToPay);
+                if (isFullRepayment) setMockForeclosed(true);
+                else setMockEmiPaid(true);
                 setMockReceiptId(res.data.receipt || `TXN-${Math.floor(Math.random() * 100000)}`);
             }, 2000);
         } catch (e) {
-            // Fallback for UX demo if backend schedule seeds are missing
+            // Fallback for UX demo
             setTimeout(() => {
                 setIsPaying(false);
                 setShowPaymentModal(false);
-                if (paymentMode === 'EMI') setMockEmiPaid(true);
-                else setMockForeclosed(true);
+                setLastPaidAmount(amountToPay);
+                if (isFullRepayment) setMockForeclosed(true);
+                else setMockEmiPaid(true);
                 setMockReceiptId(`TXN-SIM-${Math.floor(Math.random() * 100000)}`);
             }, 2000);
         }
@@ -162,6 +181,7 @@ const LoanHistory = () => {
     // VIEW: Specific Loan Details
     const activeLoan = loans.find((l: any) => l.id.toString() === selectedLoan?.toString());
     const isPending = mapBackendStatus(activeLoan?.status || '') === 'Pending Approval';
+    const totalOutstanding = activeLoan?.approvedAmount ? Math.floor(activeLoan.approvedAmount * 0.9) : 0;
 
     return (
         <div className="history-page" style={{ paddingBottom: '2rem' }}>
@@ -237,8 +257,8 @@ const LoanHistory = () => {
                                     <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
                                         <td style={{ padding: '1rem', color: '#1e293b' }}>Just Now</td>
                                         <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>{mockReceiptId}</td>
-                                        <td style={{ padding: '1rem', color: '#10b981' }}>Loan Foreclosure (Full Repayment)</td>
-                                        <td style={{ padding: '1rem', fontWeight: 600 }}>{formatCurrency((activeLoan?.approvedAmount || 0) * 0.9)}</td>
+                                        <td style={{ padding: '1rem', color: '#10b981' }}>Loan Closed (Full Repayment)</td>
+                                        <td style={{ padding: '1rem', fontWeight: 600 }}>{formatCurrency(lastPaidAmount)}</td>
                                         <td style={{ padding: '1rem' }}>
                                             <span style={{ background: '#ecfdf5', color: '#065f46', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Closed</span>
                                         </td>
@@ -254,8 +274,8 @@ const LoanHistory = () => {
                                     <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
                                         <td style={{ padding: '1rem', color: '#1e293b' }}>Just Now</td>
                                         <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>{mockReceiptId}</td>
-                                        <td style={{ padding: '1rem', color: '#10b981' }}>EMI Payment (Recently Paid)</td>
-                                        <td style={{ padding: '1rem', fontWeight: 600 }}>₹8,885</td>
+                                        <td style={{ padding: '1rem', color: '#10b981' }}>Custom Payment (Recently Paid)</td>
+                                        <td style={{ padding: '1rem', fontWeight: 600 }}>{formatCurrency(lastPaidAmount)}</td>
                                         <td style={{ padding: '1rem' }}>
                                             <span style={{ background: '#ecfdf5', color: '#065f46', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Paid</span>
                                         </td>
@@ -356,19 +376,36 @@ const LoanHistory = () => {
                                     Standard EMI
                                 </button>
                                 <button
-                                    onClick={() => setPaymentMode('FORECLOSE')}
-                                    style={{ flex: 1, padding: '0.5rem', border: 'none', borderRadius: '0.35rem', background: paymentMode === 'FORECLOSE' ? 'white' : 'transparent', color: paymentMode === 'FORECLOSE' ? '#1e293b' : '#64748b', fontWeight: 600, cursor: 'pointer', boxShadow: paymentMode === 'FORECLOSE' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
-                                    Full Foreclosure
+                                    onClick={() => setPaymentMode('CUSTOM')}
+                                    style={{ flex: 1, padding: '0.5rem', border: 'none', borderRadius: '0.35rem', background: paymentMode === 'CUSTOM' ? 'white' : 'transparent', color: paymentMode === 'CUSTOM' ? '#1e293b' : '#64748b', fontWeight: 600, cursor: 'pointer', boxShadow: paymentMode === 'CUSTOM' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
+                                    Enter Amount
                                 </button>
                             </div>
                         )}
 
                         <h2 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
-                            {paymentMode === 'EMI' ? 'Pay Next EMI' : 'Foreclose Loan'}
+                            {paymentMode === 'EMI' ? 'Pay Next EMI' : 'Custom Payment'}
                         </h2>
-                        <h3 style={{ margin: '0 0 2rem 0', color: '#10b981', fontSize: '2rem' }}>
-                            {paymentMode === 'EMI' ? '₹8,885' : formatCurrency((activeLoan?.approvedAmount || 0) * 0.9)}
-                        </h3>
+
+                        {paymentMode === 'EMI' ? (
+                            <h3 style={{ margin: '0 0 2rem 0', color: '#10b981', fontSize: '2rem' }}>₹8,885</h3>
+                        ) : (
+                            <div style={{ marginBottom: '2rem' }}>
+                                <div style={{ position: 'relative', display: 'inline-block' }}>
+                                    <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#1e293b', fontSize: '1.5rem', fontWeight: 600 }}>₹</span>
+                                    <input
+                                        type="number"
+                                        value={customAmount}
+                                        onChange={(e) => setCustomAmount(e.target.value)}
+                                        placeholder={`Max ${totalOutstanding}`}
+                                        style={{ padding: '0.75rem 1rem 0.75rem 2.5rem', fontSize: '1.5rem', fontWeight: 600, border: '2px solid #e2e8f0', borderRadius: '0.5rem', width: '200px', color: '#10b981', textAlign: 'center', outline: 'none' }}
+                                    />
+                                </div>
+                                <div style={{ fontSize: '0.85rem', color: (Number(customAmount) > totalOutstanding) ? '#ef4444' : '#64748b', marginTop: '0.5rem', fontWeight: 500 }}>
+                                    Total Outstanding: {formatCurrency(totalOutstanding)}
+                                </div>
+                            </div>
+                        )}
 
                         <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '0.5rem', marginBottom: '2rem', textAlign: 'left', fontSize: '0.875rem', color: '#64748b' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}><span>Loan Account</span><span>{selectedLoan}</span></div>
