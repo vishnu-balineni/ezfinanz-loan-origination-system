@@ -9,9 +9,10 @@ import './DashboardHome.css';
 import './ProfileStyles.css';
 
 // We create an internal inline component for the first "Requirements" step (previously all of ApplyLoan)
-const LoanRequirementsStep = ({ onNext }: { onNext: (amount: number, purpose: string) => void }) => {
+const LoanRequirementsStep = ({ onNext }: { onNext: (amount: number, purpose: string, urgent: boolean) => void }) => {
     const [loanAmount, setLoanAmount] = useState<number>(50000);
     const [purpose, setPurpose] = useState<string>('');
+    const [isUrgent, setIsUrgent] = useState<boolean>(false);
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('en-IN', {
@@ -77,9 +78,22 @@ const LoanRequirementsStep = ({ onNext }: { onNext: (amount: number, purpose: st
                 </div>
             </div>
 
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', background: '#fffbeb', borderRadius: '0.75rem', border: '1px solid #fde68a', marginBottom: '2rem' }}>
+                <input
+                    type="checkbox"
+                    id="isUrgent"
+                    checked={isUrgent}
+                    onChange={(e) => setIsUrgent(e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: '#d97706', cursor: 'pointer' }}
+                />
+                <label htmlFor="isUrgent" style={{ color: '#92400e', fontWeight: 600, fontSize: '0.95rem', cursor: 'pointer' }}>
+                    Mark this application as URGENT (Priority Processing)
+                </label>
+            </div>
+
             <button
                 type="button"
-                onClick={() => onNext(loanAmount, purpose)}
+                onClick={() => onNext(loanAmount, purpose, isUrgent)}
                 disabled={!purpose}
                 className="action-btn"
                 style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', justifyContent: 'center' }}
@@ -102,15 +116,17 @@ const ApplyLoan = () => {
 
     const [finalAmount, setFinalAmount] = useState(0);
     const [finalPurpose, setFinalPurpose] = useState('');
+    const [isFinalUrgent, setIsFinalUrgent] = useState(false);
 
     const fastTrackSteps = ["Requirements", "Liveness Check", "Done"];
 
     const activeSteps = fastTrackSteps;
 
-    const handleNext = async (amount?: number, purpose?: string) => {
+    const handleNext = async (amount?: number, purpose?: string, urgent?: boolean) => {
         if (currentStep === 1 && amount && purpose) {
             setFinalAmount(amount);
             setFinalPurpose(purpose);
+            setIsFinalUrgent(urgent || false);
             window.scrollTo(0, 0);
             setCurrentStep(2);
         } else if (currentStep === 2) {
@@ -120,7 +136,8 @@ const ApplyLoan = () => {
                     userId: storedUser.id,
                     requestedAmount: finalAmount,
                     termMonths: 12, // Defaulting logic for fast track
-                    purpose: finalPurpose
+                    purpose: finalPurpose,
+                    isUrgent: isFinalUrgent
                 });
                 window.scrollTo(0, 0);
                 setCurrentStep(3);

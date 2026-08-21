@@ -163,7 +163,7 @@ const DashboardHome = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', marginBottom: '2rem' }}>
                                 <Calendar size={18} /> Auto-debit scheduled for {getNextEmiDate()}
                             </div>
-                            <button onClick={() => alert('Payment gateway integration pending.')} style={{ background: '#10b981', color: 'white', border: 'none', padding: '1rem 2.5rem', borderRadius: '0.5rem', fontSize: '1.1rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}>
+                            <button onClick={() => navigate('/dashboard/history', { state: { selectedLoanId: loanDetails.id } })} style={{ background: '#10b981', color: 'white', border: 'none', padding: '1rem 2.5rem', borderRadius: '0.5rem', fontSize: '1.1rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}>
                                 Pay Manually Now
                             </button>
                         </div>

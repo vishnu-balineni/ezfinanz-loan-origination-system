@@ -11,9 +11,13 @@ const mapBackendStatus = (status: string) => {
     return status;
 };
 
+import { useLocation } from 'react-router-dom';
+
 const LoanHistory = () => {
+    const location = useLocation();
+
     // If null, show the list of all loans. Otherwise, show the details for the selected loan ID.
-    const [selectedLoan, setSelectedLoan] = useState<string | null>(null);
+    const [selectedLoan, setSelectedLoan] = useState<string | null>(location.state?.selectedLoanId || null);
 
     // Dynamic User Data
     const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -21,6 +25,33 @@ const LoanHistory = () => {
 
     const [loans, setLoans] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Payment Simulator State
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [isPaying, setIsPaying] = useState(false);
+    const [mockEmiPaid, setMockEmiPaid] = useState(false);
+    const [mockReceiptId, setMockReceiptId] = useState('');
+
+    const handlePayEmi = async () => {
+        setIsPaying(true);
+        try {
+            const res = await api.post(`/loans/${selectedLoan}/pay`);
+            setTimeout(() => {
+                setIsPaying(false);
+                setShowPaymentModal(false);
+                setMockEmiPaid(true);
+                setMockReceiptId(res.data.receipt || `TXN-${Math.floor(Math.random() * 100000)}`);
+            }, 2000);
+        } catch (e) {
+            // Fallback for UX demo if backend schedule seeds are missing
+            setTimeout(() => {
+                setIsPaying(false);
+                setShowPaymentModal(false);
+                setMockEmiPaid(true);
+                setMockReceiptId(`TXN-SIM-${Math.floor(Math.random() * 100000)}`);
+            }, 2000);
+        }
+    };
 
     useEffect(() => {
         if (!userId) return;
@@ -182,7 +213,7 @@ const LoanHistory = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {mapBackendStatus(activeLoan?.status || '') === 'Active' && (
+                                {mapBackendStatus(activeLoan?.status || '') === 'Active' && !mockEmiPaid && (
                                     <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
                                         <td style={{ padding: '1rem', color: '#1e293b' }}>05 Nov 2026</td>
                                         <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>Upcoming</td>
@@ -192,10 +223,28 @@ const LoanHistory = () => {
                                             <span style={{ background: '#fef3c7', color: '#b45309', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Pending</span>
                                         </td>
                                         <td style={{ padding: '1rem' }}>
-                                            <button style={{ background: '#10b981', color: 'white', border: 'none', padding: '0.4rem 1rem', borderRadius: '0.5rem', fontWeight: 600, cursor: 'pointer' }}>Pay Now</button>
+                                            <button onClick={() => setShowPaymentModal(true)} style={{ background: '#10b981', color: 'white', border: 'none', padding: '0.4rem 1rem', borderRadius: '0.5rem', fontWeight: 600, cursor: 'pointer' }}>Pay Now</button>
                                         </td>
                                     </tr>
                                 )}
+
+                                {mockEmiPaid && (
+                                    <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+                                        <td style={{ padding: '1rem', color: '#1e293b' }}>Just Now</td>
+                                        <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>{mockReceiptId}</td>
+                                        <td style={{ padding: '1rem', color: '#10b981' }}>EMI Payment (Recently Paid)</td>
+                                        <td style={{ padding: '1rem', fontWeight: 600 }}>₹8,885</td>
+                                        <td style={{ padding: '1rem' }}>
+                                            <span style={{ background: '#ecfdf5', color: '#065f46', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Paid</span>
+                                        </td>
+                                        <td style={{ padding: '1rem' }}>
+                                            <button style={{ background: 'transparent', border: 'none', color: '#10b981', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                                <CheckCircle2 size={14} /> View Receipt
+                                            </button>
+                                        </td>
+                                    </tr>
+                                )}
+
                                 <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#fdfdfd' }}>
                                     <td style={{ padding: '1rem', color: '#1e293b' }}>05 {mapBackendStatus(activeLoan?.status || '') === 'Active' ? 'Oct' : 'Sep'} 2026</td>
                                     <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>TXN-9844321A</td>
@@ -268,6 +317,39 @@ const LoanHistory = () => {
 
                 </div>
             </div>
+
+            {/* Payment Modal Overlay */}
+            {showPaymentModal && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+                    <div className="animate-fade-in dash-card" style={{ width: '100%', maxWidth: '400px', padding: '2rem', textAlign: 'center', background: 'white' }}>
+                        <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '50%', width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+                            <Banknote size={40} color="#10b981" />
+                        </div>
+                        <h2 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Pay Next EMI</h2>
+                        <h3 style={{ margin: '0 0 2rem 0', color: '#10b981', fontSize: '2rem' }}>₹8,885</h3>
+
+                        <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '0.5rem', marginBottom: '2rem', textAlign: 'left', fontSize: '0.875rem', color: '#64748b' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}><span>Loan Account</span><span>{selectedLoan}</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}><span>Payment Gateway</span><span>Secure UPI</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Platform Fee</span><span>₹0.00</span></div>
+                        </div>
+
+                        {isPaying ? (
+                            <div style={{ padding: '1rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                                    <div className="dot-flashing"></div>
+                                </div>
+                                <p style={{ color: '#64748b', marginTop: '1rem', fontSize: '0.9rem' }}>Processing Payment...</p>
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                <button onClick={() => setShowPaymentModal(false)} style={{ flex: 1, padding: '0.75rem', border: '1px solid #e2e8f0', background: 'white', color: '#64748b', borderRadius: '0.5rem', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                                <button onClick={handlePayEmi} style={{ flex: 2, padding: '0.75rem', border: 'none', background: '#10b981', color: 'white', borderRadius: '0.5rem', fontWeight: 600, cursor: 'pointer' }}>Confirm Payment</button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

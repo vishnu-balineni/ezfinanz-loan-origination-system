@@ -24,17 +24,31 @@ const AdminPending = () => {
         const fetchPending = async () => {
             try {
                 const res = await api.get('/loans/admin/all');
-                // Pending KYC effectively maps to PENDING_ADMIN_REVIEW
-                const pending = res.data.filter((l: any) => l.status === 'PENDING_ADMIN_REVIEW').map((app: any) => ({
-                    id: app.id.toString(),
-                    name: app.applicant?.fullName || 'Unknown',
-                    date: new Date(app.createdAt).toLocaleString(),
-                    issue: app.isKycSubmitted ? 'Awaiting Human Verification' : 'KYC Docs Missing',
-                    severity: app.isKycSubmitted ? 'Medium' : 'High',
-                    slaState: 'On Track',
-                    amount: app.requestedAmount || 0,
-                    rawStatus: app.status
-                }));
+                // Calculate waiting time to determine Urgency / SLA
+                const pending = res.data.filter((l: any) => l.status === 'PENDING_ADMIN_REVIEW').map((app: any) => {
+                    const hoursWaiting = (Date.now() - new Date(app.createdAt).getTime()) / (1000 * 60 * 60);
+                    let currentSla = 'On Track';
+                    if (hoursWaiting > 24) currentSla = 'Breached';
+                    else if (hoursWaiting > 6) currentSla = 'Breaching Soon';
+
+                    // Business Logic Overrides based on new fields
+                    if (app.purpose === 'medical') {
+                        currentSla = 'Breached'; // Force into Critical Region
+                    } else if (app.isUrgent && currentSla === 'On Track') {
+                        currentSla = 'Breaching Soon'; // Force into Urgent Region
+                    }
+
+                    return {
+                        id: app.id.toString(),
+                        name: app.applicant?.fullName || 'Unknown',
+                        date: new Date(app.createdAt).toLocaleString(),
+                        issue: app.purpose === 'medical' ? 'Medical Emergency' : (app.isUrgent ? 'User Marked Urgent' : (app.isKycSubmitted ? 'Awaiting Human Verification' : 'KYC Docs Missing')),
+                        severity: app.purpose === 'medical' ? 'Critical' : (app.isUrgent ? 'High' : (app.isKycSubmitted ? 'Medium' : 'High')),
+                        slaState: currentSla,
+                        amount: app.requestedAmount || 0,
+                        rawStatus: app.status
+                    };
+                });
                 // Sort by ID falling backwards
                 setQueue(pending.sort((a: any, b: any) => parseInt(b.id) - parseInt(a.id)));
             } catch (err) {
@@ -59,12 +73,12 @@ const AdminPending = () => {
         const matchesSearch = app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             app.id.toLowerCase().includes(searchTerm.toLowerCase());
 
-        // Status Toggle Filter
+        // Urgency Toggle Filter (SLA-based)
         let matchesStatus = true;
         if (activeFilter === 'Critical') {
-            matchesStatus = app.severity === 'Critical';
-        } else if (activeFilter === 'High Risk') {
-            matchesStatus = app.severity === 'High' || app.severity === 'Critical';
+            matchesStatus = app.slaState === 'Breached';
+        } else if (activeFilter === 'Urgent') {
+            matchesStatus = app.slaState === 'Breaching Soon' || app.slaState === 'Breached';
         }
 
         return matchesSearch && matchesStatus;
@@ -152,7 +166,7 @@ const AdminPending = () => {
                     </div>
 
                     <div style={{ display: 'flex', background: 'white', border: '1px solid #e2e8f0', borderRadius: '9999px', padding: '0.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                        {['All', 'Critical', 'High Risk'].map(filter => (
+                        {['All', 'Critical', 'Urgent'].map(filter => (
                             <button
                                 key={filter}
                                 onClick={() => setActiveFilter(filter)}
