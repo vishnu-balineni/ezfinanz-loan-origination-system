@@ -28,18 +28,22 @@ const LoanHistory = () => {
 
     // Payment Simulator State
     const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentMode, setPaymentMode] = useState<'EMI' | 'FORECLOSE'>('EMI');
     const [isPaying, setIsPaying] = useState(false);
     const [mockEmiPaid, setMockEmiPaid] = useState(false);
+    const [mockForeclosed, setMockForeclosed] = useState(false);
     const [mockReceiptId, setMockReceiptId] = useState('');
 
     const handlePayEmi = async () => {
         setIsPaying(true);
         try {
-            const res = await api.post(`/loans/${selectedLoan}/pay`);
+            const apiPath = paymentMode === 'EMI' ? `/loans/${selectedLoan}/pay` : `/loans/${selectedLoan}/foreclose`;
+            const res = await api.post(apiPath);
             setTimeout(() => {
                 setIsPaying(false);
                 setShowPaymentModal(false);
-                setMockEmiPaid(true);
+                if (paymentMode === 'EMI') setMockEmiPaid(true);
+                else setMockForeclosed(true);
                 setMockReceiptId(res.data.receipt || `TXN-${Math.floor(Math.random() * 100000)}`);
             }, 2000);
         } catch (e) {
@@ -47,7 +51,8 @@ const LoanHistory = () => {
             setTimeout(() => {
                 setIsPaying(false);
                 setShowPaymentModal(false);
-                setMockEmiPaid(true);
+                if (paymentMode === 'EMI') setMockEmiPaid(true);
+                else setMockForeclosed(true);
                 setMockReceiptId(`TXN-SIM-${Math.floor(Math.random() * 100000)}`);
             }, 2000);
         }
@@ -213,7 +218,7 @@ const LoanHistory = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {mapBackendStatus(activeLoan?.status || '') === 'Active' && !mockEmiPaid && (
+                                {mapBackendStatus(activeLoan?.status || '') === 'Active' && !mockEmiPaid && !mockForeclosed && (
                                     <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
                                         <td style={{ padding: '1rem', color: '#1e293b' }}>05 Nov 2026</td>
                                         <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>Upcoming</td>
@@ -223,12 +228,29 @@ const LoanHistory = () => {
                                             <span style={{ background: '#fef3c7', color: '#b45309', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Pending</span>
                                         </td>
                                         <td style={{ padding: '1rem' }}>
-                                            <button onClick={() => setShowPaymentModal(true)} style={{ background: '#10b981', color: 'white', border: 'none', padding: '0.4rem 1rem', borderRadius: '0.5rem', fontWeight: 600, cursor: 'pointer' }}>Pay Now</button>
+                                            <button onClick={() => setShowPaymentModal(true)} style={{ background: '#10b981', color: 'white', border: 'none', padding: '0.4rem 1rem', borderRadius: '0.5rem', fontWeight: 600, cursor: 'pointer' }}>Make Payment</button>
                                         </td>
                                     </tr>
                                 )}
 
-                                {mockEmiPaid && (
+                                {mockForeclosed && (
+                                    <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+                                        <td style={{ padding: '1rem', color: '#1e293b' }}>Just Now</td>
+                                        <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>{mockReceiptId}</td>
+                                        <td style={{ padding: '1rem', color: '#10b981' }}>Loan Foreclosure (Full Repayment)</td>
+                                        <td style={{ padding: '1rem', fontWeight: 600 }}>{formatCurrency((activeLoan?.approvedAmount || 0) * 0.9)}</td>
+                                        <td style={{ padding: '1rem' }}>
+                                            <span style={{ background: '#ecfdf5', color: '#065f46', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Closed</span>
+                                        </td>
+                                        <td style={{ padding: '1rem' }}>
+                                            <button style={{ background: 'transparent', border: 'none', color: '#10b981', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                                <CheckCircle2 size={14} /> Receipt
+                                            </button>
+                                        </td>
+                                    </tr>
+                                )}
+
+                                {mockEmiPaid && !mockForeclosed && (
                                     <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
                                         <td style={{ padding: '1rem', color: '#1e293b' }}>Just Now</td>
                                         <td style={{ padding: '1rem', color: '#64748b', fontSize: '0.875rem' }}>{mockReceiptId}</td>
@@ -325,8 +347,28 @@ const LoanHistory = () => {
                         <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '50%', width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
                             <Banknote size={40} color="#10b981" />
                         </div>
-                        <h2 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Pay Next EMI</h2>
-                        <h3 style={{ margin: '0 0 2rem 0', color: '#10b981', fontSize: '2rem' }}>₹8,885</h3>
+
+                        {!isPaying && (
+                            <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: '0.5rem', padding: '0.25rem', marginBottom: '1.5rem' }}>
+                                <button
+                                    onClick={() => setPaymentMode('EMI')}
+                                    style={{ flex: 1, padding: '0.5rem', border: 'none', borderRadius: '0.35rem', background: paymentMode === 'EMI' ? 'white' : 'transparent', color: paymentMode === 'EMI' ? '#1e293b' : '#64748b', fontWeight: 600, cursor: 'pointer', boxShadow: paymentMode === 'EMI' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
+                                    Standard EMI
+                                </button>
+                                <button
+                                    onClick={() => setPaymentMode('FORECLOSE')}
+                                    style={{ flex: 1, padding: '0.5rem', border: 'none', borderRadius: '0.35rem', background: paymentMode === 'FORECLOSE' ? 'white' : 'transparent', color: paymentMode === 'FORECLOSE' ? '#1e293b' : '#64748b', fontWeight: 600, cursor: 'pointer', boxShadow: paymentMode === 'FORECLOSE' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
+                                    Full Foreclosure
+                                </button>
+                            </div>
+                        )}
+
+                        <h2 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+                            {paymentMode === 'EMI' ? 'Pay Next EMI' : 'Foreclose Loan'}
+                        </h2>
+                        <h3 style={{ margin: '0 0 2rem 0', color: '#10b981', fontSize: '2rem' }}>
+                            {paymentMode === 'EMI' ? '₹8,885' : formatCurrency((activeLoan?.approvedAmount || 0) * 0.9)}
+                        </h3>
 
                         <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '0.5rem', marginBottom: '2rem', textAlign: 'left', fontSize: '0.875rem', color: '#64748b' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}><span>Loan Account</span><span>{selectedLoan}</span></div>
