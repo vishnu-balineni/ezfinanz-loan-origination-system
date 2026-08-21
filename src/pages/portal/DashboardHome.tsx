@@ -21,6 +21,7 @@ const formatCurrency = (value: number) => {
 const mapBackendStatus = (status: string) => {
     if (status === 'PENDING_ADMIN_REVIEW' || status === 'PENDING_KYC') return 'Pending Review';
     if (status === 'APPROVED') return 'Approved & Disbursed';
+    if (status === 'CLOSED') return 'Completed';
     if (status === 'REJECTED') return 'Rejected';
     return status;
 };

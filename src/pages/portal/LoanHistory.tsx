@@ -7,7 +7,8 @@ import './ProfileStyles.css'; // For the dark hero region
 const mapBackendStatus = (status: string) => {
     if (status === 'PENDING_ADMIN_REVIEW' || status === 'PENDING_KYC') return 'Pending Approval';
     if (status === 'APPROVED') return 'Active';
-    if (status === 'REJECTED') return 'Closed'; // or Rejected
+    if (status === 'CLOSED') return 'Completed';
+    if (status === 'REJECTED') return 'Closed'; // Rejected
     return status;
 };
 
@@ -60,8 +61,17 @@ const LoanHistory = () => {
                 setIsPaying(false);
                 setShowPaymentModal(false);
                 setLastPaidAmount(amountToPay);
-                if (isFullRepayment) setMockForeclosed(true);
-                else setMockEmiPaid(true);
+                if (isFullRepayment) {
+                    setMockForeclosed(true);
+                    setLoans(prevLoans => prevLoans.map(l => {
+                        if (l.id.toString() === selectedLoan?.toString()) {
+                            return { ...l, status: 'CLOSED' };
+                        }
+                        return l;
+                    }));
+                } else {
+                    setMockEmiPaid(true);
+                }
                 setMockReceiptId(res.data.receipt || `TXN-${Math.floor(Math.random() * 100000)}`);
             }, 2000);
         } catch (e) {
@@ -70,8 +80,17 @@ const LoanHistory = () => {
                 setIsPaying(false);
                 setShowPaymentModal(false);
                 setLastPaidAmount(amountToPay);
-                if (isFullRepayment) setMockForeclosed(true);
-                else setMockEmiPaid(true);
+                if (isFullRepayment) {
+                    setMockForeclosed(true);
+                    setLoans(prevLoans => prevLoans.map(l => {
+                        if (l.id.toString() === selectedLoan?.toString()) {
+                            return { ...l, status: 'CLOSED' };
+                        }
+                        return l;
+                    }));
+                } else {
+                    setMockEmiPaid(true);
+                }
                 setMockReceiptId(`TXN-SIM-${Math.floor(Math.random() * 100000)}`);
             }, 2000);
         }
@@ -101,12 +120,14 @@ const LoanHistory = () => {
     const getStatusStyle = (status: string) => {
         if (status === 'Active') return { bg: '#dcfce7', text: '#166534' };
         if (status === 'Pending Approval') return { bg: '#fef3c7', text: '#b45309' };
+        if (status === 'Completed') return { bg: '#e0e7ff', text: '#4338ca' };
         return { bg: '#e2e8f0', text: '#475569' };
     };
 
     const getIconStyle = (status: string) => {
         if (status === 'Active') return { bg: '#ecfdf5', text: '#10b981' };
         if (status === 'Pending Approval') return { bg: '#fef9c3', text: '#ca8a04' };
+        if (status === 'Completed') return { bg: '#e0e7ff', text: '#6366f1' };
         return { bg: '#f1f5f9', text: '#64748b' };
     };
 
